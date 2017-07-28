@@ -1,0 +1,16 @@
+﻿<Properties StartupConfiguration="{496C8CC4-DF3D-4DB6-ADB8-8ED44399B955}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/packages.config">
+    <Files>
+      <File FileName="MachineLearningTrading/Main.cs" Line="3" Column="1" />
+      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="4" Column="1" />
+      <File FileName="MachineLearningTrading/packages.config" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.MachineLearningTrading PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>

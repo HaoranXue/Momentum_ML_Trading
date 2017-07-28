@@ -1,0 +1,10 @@
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/MachineLearningTrading.exe
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/MachineLearningTrading.pdb
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/Deedle.dll
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/XGBoost.dll
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/Deedle.pdb
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/Deedle.xml
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.csprojResolveAssemblyReference.cache
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.csproj.CoreCompileInputs.cache
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.exe
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.pdb
