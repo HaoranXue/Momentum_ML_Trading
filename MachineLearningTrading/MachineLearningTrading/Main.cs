@@ -14,6 +14,7 @@ namespace MLtrading
 			DataPreProcessing.Run();
             Console.ReadKey();
 
+
         }
     }
 }
