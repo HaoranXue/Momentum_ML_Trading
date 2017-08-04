@@ -1,57 +1,77 @@
 ﻿using System;
+using System.Linq;
+//using Accord.MachineLearning;
 using Deedle;
 using XGBoost;
-using Accord.MachineLearning;
 
 namespace machinelearning
 {
     public static class Learning
     {
-        public static void Run()
+        public static XGBClassifier Fit(float[][] X, float[] y)
         {
-            
-            float[] learningrate = new float[] { 0.01f, 0.5f, 1, 10 };
-            int[] estimator = new int[] { 100, 500, 1000 };
-            int[] max_depth = new int[] { 3, 5, 10, 15, 20 };
-            float[] sample_tree = new float[] { 0.3f, 0.5f, 0.75f, 1 };
-            float[] sample_level = new float[] { 0.5f, 0.75f };
-            float[] reg_lamda = new float[] { 0.01f, 1, 10, 1000 };
+           
 
-
-            for (int i = 0; i < learningrate.Length; i++)
-            {
-                for (int j = 0; j < estimator.Length; j++)
-                {
-                    for (int k = 0; k < max_depth.Length; k++)
-                    {
-                        for (int l = 0; l < sample_tree.Length; l++)
-                        {
-                            for (int m = 0; m < sample_level.Length; m++)
-                            {
-                                for (int n = 0; n < reg_lamda.Length; n++)
-                                {
-
-
-                                    var model = new XGBClassifier(nThread: 4);
+            var model = new XGBClassifier(nEstimators: 1000, 
+                                          colSampleByTree: 0.5f, 
+                                          colSampleByLevel: 0.5f,
+                                          regLambda: 10);
 
 
 
+            model.Fit(X, y);
+
+            return model;
 
 
+            //var model = new XGBRegressor(learningRate: 0.001f);
+
+            //model.Fit(X,y);
+            //var prediction = model.Predict(X);
+
+            //Console.WriteLine(prediction);
+
+            //for (int i = 0; i < learningrate.Length; i++)
+            //{
+            //    for (int j = 0; j < estimator.Length; j++)
+            //    {
+            //        for (int k = 0; k < max_depth.Length; k++)
+            //        {
+            //            for (int l = 0; l < sample_tree.Length; l++)
+            //            {
+            //                for (int m = 0; m < sample_level.Length; m++)
+            //                {
+            //                    for (int n = 0; n < reg_lamda.Length; n++)
+            //                    {
 
 
-                                }
-                            }
-                        }
-                    }
-                }
+            //                        var model = new XGBClassifier();
 
-            }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
 
-
-
-
+            //}
 
         }
+        public static float GetRandomNumber(double minimum, double maximum)
+		{
+			Random random = new Random();
+            var input = random.NextDouble() * (maximum - minimum) + minimum;
+
+			float result = (float)input;
+			if (float.IsPositiveInfinity(result))
+			{
+				result = float.MaxValue;
+			}
+			else if (float.IsNegativeInfinity(result))
+			{
+				result = float.MinValue;
+			}
+
+            return result ;
+		}
     }
 }
