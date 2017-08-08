@@ -8,33 +8,63 @@ namespace Preprocessing
     public static class DataPreProcessing
     {
 
-        public static void Run()
+        public static void Run(string starttime, int weeks,string catagory)
         {
 
-            Console.WriteLine("Trading Fixed Income or Equity Strategy ?");
-            String catagory = Console.ReadLine();
 
-            String[] Index_list = Trading_category(catagory);
-            String[] Mapping_ETF_list = Get_mapping_ETF(Index_list);
+            string[] Index_namelist = Trading_category(catagory);
+            string[] Mapping_ETF_namelist = Get_mapping_ETF(Index_namelist);
 
-            var Index_data = Get_DataFromList(Index_list, "Index");
-            var ETF_data = Get_DataFromList(Mapping_ETF_list, "ETF");
+            var Index_data = Get_DataFromList(Index_namelist, "Index");
+            var ETF_data = Get_DataFromList(Mapping_ETF_namelist, "ETF");
 
-            var Adj_Index_data = Adjust_index_fx(Index_data, Index_list);
-            var Adj_ETF_data = Adjust_etf_fx(ETF_data, Mapping_ETF_list);
+            var Adj_Index_data = Adjust_index_fx(Index_data, Index_namelist);
+            var Adj_ETF_data = Adjust_etf_fx(ETF_data, Mapping_ETF_namelist);
+
+            var startDate = DateTime.Parse(starttime);
+            var endDate = startDate.AddDays(weeks * 7);
 
             List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
-
-            for (int i = 0; i < Index_list.Length; i++)
+            List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
+            List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
+            List<string> Trade_Index = new List<string>();
+            List<string> Trade_ETF = new List<string>();
+           
+            for (int i = 0; i < Index_namelist.Length; i++)
             {
-                
-                Feature_List.Add(MultiLagFeaturesEng(Price2Return(Adj_Index_data[i])
-                            .Between(new DateTime(2012,10,01),new DateTime(2012, 12, 01) )
-                            .Chunk(7).Select(x => x.Value.Sum())));
-            
+
+                // Check if the Index exist and if the ETF tradable during this period
+
+                double init_value_Index = Index_data[i].Get(startDate);
+                double init_value_ETF = ETF_data[i].Get(startDate);
+
+                if (init_value_ETF.Equals(1)  || init_value_Index.Equals(1))
+                {
+                    continue;
+
+                }
+                else
+                {
+                    var y = Adj_Index_data[i].Between(startDate, endDate);
+                    var features = MultiLagFeaturesEng(Price2Return(y)
+                                                        .Chunk(7)
+                                                        .Select(x => x.Value.Sum()));
+                    
+                    var etf = Price2Return(Adj_ETF_data[i].Between(startDate,endDate))
+                                                          .Chunk(7)
+                                                          .Select(x => x.Value.Sum());
+
+                    Target_List.Add(y);
+                    Feature_List.Add(features);
+                    ETF_list.Add(etf);
+                    Trade_Index.Add(Index_namelist[i]);
+                    Trade_ETF.Add(Mapping_ETF_namelist[i]);
+
+                }
+
             }
 
-            var Feature_test = Feature_List[0].ToArray2D<float>();   
+
         }
 
 
@@ -250,6 +280,22 @@ namespace Preprocessing
 
         }
 
+        public static List<DateTime> Resample_key(string starttime, int weeks)
+        {
+            List<DateTime> keys =new List<DateTime>();
+
+            var startDate = DateTime.Parse(starttime);
+            keys.Add(startDate);
+
+            for (int i = 1; i < weeks+1; i++)
+            {
+                var date = startDate.AddDays(7*i);      
+                keys.Add(date);
+            }
+
+            return keys;
+        }
+
 
         public static Frame<DateTime, string> Features_engineering(Series<DateTime, double> input, int shiftn)
         {   
@@ -313,6 +359,7 @@ namespace Preprocessing
                 {K10column,K10}
 
             }.Frame;
+
 
             return Features;
          
@@ -399,6 +446,7 @@ namespace Preprocessing
             double K = (list[len] - min_item) / (max_item - min_item);
             return K;
         }
+
 
     }
 

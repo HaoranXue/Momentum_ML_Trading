@@ -16,7 +16,8 @@ namespace MLtrading
 
             if (Order =="0")
             {
-                BackTest();
+
+				BackTest();
             }
             else if (Order =="1")
             {
@@ -29,13 +30,25 @@ namespace MLtrading
             }
 
 
+
+
         }
         public static void BackTest()
         {
 
 			// Data Preprocessing
-			DataPreProcessing.Run();
-			Console.ReadKey();
+
+			Console.WriteLine("Trading Fixed Income or Equity Strategy ?");
+			String catagory = Console.ReadLine();
+
+            DataPreProcessing.Run("2010-01-01",100,catagory);
+			
+            Console.ReadKey();
+
+
+
+
+
 
 
 

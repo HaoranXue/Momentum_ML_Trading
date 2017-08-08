@@ -1,11 +1,10 @@
 ﻿<Properties StartupConfiguration="{496C8CC4-DF3D-4DB6-ADB8-8ED44399B955}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/packages.config">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/machinelearning.cs">
     <Files>
-      <File FileName="MachineLearningTrading/Main.cs" Line="30" Column="13" />
-      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="82" Column="10" />
-      <File FileName="MachineLearningTrading/machinelearning.cs" Line="33" Column="13" />
-      <File FileName="MachineLearningTrading/portfolio_optimization.cs" Line="14" Column="1" />
-      <File FileName="MachineLearningTrading/packages.config" Line="1" Column="1" />
+      <File FileName="MachineLearningTrading/Main.cs" Line="45" Column="4" />
+      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="432" Column="13" />
+      <File FileName="MachineLearningTrading/machinelearning.cs" Line="19" Column="13" />
+      <File FileName="MachineLearningTrading/portfolio_optimization.cs" Line="37" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

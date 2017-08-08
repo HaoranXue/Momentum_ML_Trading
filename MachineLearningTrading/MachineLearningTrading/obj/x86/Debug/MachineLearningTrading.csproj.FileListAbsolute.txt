@@ -8,3 +8,7 @@
 /Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.csproj.CoreCompileInputs.cache
 /Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.exe
 /Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/obj/x86/Debug/MachineLearningTrading.pdb
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/MathNet.Numerics.dll
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/MathNet.Numerics.xml
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/Microsoft.Solver.Foundation.dll
+/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading/bin/Debug/Microsoft.Solver.Foundation.xml
