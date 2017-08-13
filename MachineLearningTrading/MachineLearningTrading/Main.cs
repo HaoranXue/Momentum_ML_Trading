@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Deedle;
 using machinelearning;
 using Preprocessing;
 
@@ -41,8 +42,26 @@ namespace MLtrading
 			Console.WriteLine("Trading Fixed Income or Equity Strategy ?");
 			String catagory = Console.ReadLine();
 
-            DataPreProcessing.Run("2010-01-01",100,catagory);
-			
+            var pro = new DataPreProcessing();
+            pro.Run("2009-01-01",100,catagory);
+
+
+            for (int i = 0; i < pro.Trade_ETF.Count; i++)
+            {
+
+                var features_array = pro.Feature_List[i].ToArray2D<float>();
+                var y = pro.Target_List[i];
+                var fy = new FrameBuilder.Columns<DateTime, string>{
+                     { "Y"  , y  }
+                }.Frame;
+
+                var ary = fy.ToArray2D<float>();
+
+
+                var model = Learning.Fit(features_array, ary);
+            }
+ 
+
             Console.ReadKey();
 
 

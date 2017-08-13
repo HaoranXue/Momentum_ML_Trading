@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using Deedle;
 
 namespace Preprocessing
-{
+{  
 
-    public static class DataPreProcessing
+    public class DataPreProcessing
     {
+        
+		public List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
+		public List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
+		public List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
+		public List<string> Trade_Index = new List<string>();
+		public List<string> Trade_ETF = new List<string>();
 
-        public static void Run(string starttime, int weeks,string catagory)
+        public void Run(string starttime, int weeks,string catagory)
         {
 
 
@@ -24,11 +30,11 @@ namespace Preprocessing
             var startDate = DateTime.Parse(starttime);
             var endDate = startDate.AddDays(weeks * 7);
 
-            List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
-            List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
-            List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
-            List<string> Trade_Index = new List<string>();
-            List<string> Trade_ETF = new List<string>();
+            //List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
+            //List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
+            //List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
+            //List<string> Trade_Index = new List<string>();
+            //List<string> Trade_ETF = new List<string>();
            
             for (int i = 0; i < Index_namelist.Length; i++)
             {
@@ -63,7 +69,6 @@ namespace Preprocessing
                 }
 
             }
-
 
         }
 

@@ -8,7 +8,7 @@ namespace machinelearning
 {
     public static class Learning
     {
-        public static XGBClassifier Fit(float[][] X, float[] y)
+        public static XGBClassifier Fit(float[,] X, float[,] y)
         {
            
 
@@ -17,9 +17,10 @@ namespace machinelearning
                                           colSampleByLevel: 0.5f,
                                           regLambda: 10);
 
+            var X_trans = Trans_x(X);
+            var y_trans = Trans_y(y);
 
-
-            model.Fit(X, y);
+            model.Fit(X_trans, y_trans);
 
             return model;
 
@@ -56,7 +57,54 @@ namespace machinelearning
             //}
 
         }
-        public static float GetRandomNumber(double minimum, double maximum)
+        public static float[][] Trans_x(float[,] X)
+        {
+
+			var dim0 = X.GetLength(0);
+			var dim1 = X.GetLength(1);
+
+
+			float[][] X_trans = new float[dim0][];
+
+			for (int i = 0; i < dim0; i++)
+			{
+				for (int j = 0; j < dim1; j++)
+				{
+
+					X_trans[i][j] = X[i, j];
+
+
+				}
+			}
+
+            return X_trans;
+		}
+
+		public static float[] Trans_y(float[,] X)
+		{
+
+			var dim0 = X.GetLength(0);
+			var dim1 = X.GetLength(1);
+
+
+			float[] X_trans = new float[dim0];
+
+			for (int i = 0; i < dim0; i++)
+			{
+				
+
+					X_trans[i] = X[i, 0];
+
+
+				
+			}
+
+			return X_trans;
+		}
+
+
+
+		public static float GetRandomNumber(double minimum, double maximum)
 		{
 			Random random = new Random();
             var input = random.NextDouble() * (maximum - minimum) + minimum;
