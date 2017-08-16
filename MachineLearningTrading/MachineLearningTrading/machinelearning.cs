@@ -1,103 +1,95 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 //using Accord.MachineLearning;
 using Deedle;
-using XGBoost;
+using Accord;
+using Accord.IO;
+using Accord.MachineLearning.VectorMachines;
+using Accord.MachineLearning.VectorMachines.Learning;
+using Accord.Math;
+using Accord.Statistics;
+using Accord.Statistics.Analysis;
+using Accord.Statistics.Kernels;
+using AForge;
+using SharpLearning.DecisionTrees.Learners;
+using SharpLearning.AdaBoost.Learners;
+using SharpLearning.Containers;
+using SharpLearning.InputOutput.Csv;
 
 namespace machinelearning
 {
     public static class Learning
     {
-        public static XGBClassifier Fit(float[,] X, float[,] y)
+        public static void Fit(double[,] X, double[,] y)
         {
-           
+            
+            var parser = new CsvParser(() => new StreamReader("dataset.csv"),separator:',');
+            var targetName = "Y";
 
-            var model = new XGBClassifier(nEstimators: 1000, 
-                                          colSampleByTree: 0.5f, 
-                                          colSampleByLevel: 0.5f,
-                                          regLambda: 10);
+			
+            
+			var observations = parser.EnumerateRows(c => c != targetName)
+		    .ToF64Matrix();
 
-            var X_trans = Trans_x(X);
-            var y_trans = Trans_y(y);
+			var targets = parser.EnumerateRows(targetName)
+				.ToF64Vector();
+            // read regression targets
 
-            model.Fit(X_trans, y_trans);
+            var learner2 = new RegressionAdaBoostLearner();
+			var learner = new RegressionDecisionTreeLearner(maximumTreeDepth: 5);
 
-            return model;
-
-
-            //var model = new XGBRegressor(learningRate: 0.001f);
-
-            //model.Fit(X,y);
-            //var prediction = model.Predict(X);
-
-            //Console.WriteLine(prediction);
-
-            //for (int i = 0; i < learningrate.Length; i++)
-            //{
-            //    for (int j = 0; j < estimator.Length; j++)
-            //    {
-            //        for (int k = 0; k < max_depth.Length; k++)
-            //        {
-            //            for (int l = 0; l < sample_tree.Length; l++)
-            //            {
-            //                for (int m = 0; m < sample_level.Length; m++)
-            //                {
-            //                    for (int n = 0; n < reg_lamda.Length; n++)
-            //                    {
+			// learns a RegressionRandomForestModel
+			var model = learner.Learn(observations, targets);
+            var prediction = model.Predict(observations);
+		}
 
 
-            //                        var model = new XGBClassifier();
-
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //}
-
-        }
-        public static float[][] Trans_x(float[,] X)
+        public static double[][] Trans_x(double[,] X)
         {
 
 			var dim0 = X.GetLength(0);
 			var dim1 = X.GetLength(1);
 
 
-			float[][] X_trans = new float[dim0][];
+            double[][] X_trans = new double[dim0][];
 
 			for (int i = 0; i < dim0; i++)
 			{
+                X_trans[i] = new double[dim1];
+
 				for (int j = 0; j < dim1; j++)
 				{
-
-					X_trans[i][j] = X[i, j];
-
-
-				}
+                      X_trans[i][j] = X[i, j];
+                }
 			}
 
             return X_trans;
 		}
 
-		public static float[] Trans_y(float[,] X)
+        public static bool[] Trans_y(double[,] X)
 		{
 
 			var dim0 = X.GetLength(0);
 			var dim1 = X.GetLength(1);
 
 
-			float[] X_trans = new float[dim0];
+            bool[] X_trans = new bool[dim0];
 
 			for (int i = 0; i < dim0; i++)
 			{
-				
 
-					X_trans[i] = X[i, 0];
+                if (X[i, 0] > 0 )
+                {
+                    X_trans[i]=true;
+                }
 
+                else
+                {
+                    X_trans[i] = false;
+                }
 
-				
-			}
+            }
 
 			return X_trans;
 		}

@@ -51,14 +51,18 @@ namespace Preprocessing
                 }
                 else
                 {
-                    var y = Adj_Index_data[i].Between(startDate, endDate);
-                    var features = MultiLagFeaturesEng(Price2Return(y)
+                    var raw_y = Adj_Index_data[i].Between(startDate, endDate);
+                    var features = MultiLagFeaturesEng(Price2Return(raw_y)
                                                         .Chunk(7)
-                                                        .Select(x => x.Value.Sum()));
+                                                       .Select(x => x.Value.Sum())).DropSparseRows();
                     
-                    var etf = Price2Return(Adj_ETF_data[i].Between(startDate,endDate))
+                    var raw_etf = Price2Return(Adj_ETF_data[i].Between(startDate,endDate))
                                                           .Chunk(7)
                                                           .Select(x => x.Value.Sum());
+                    
+                    var First_key = features.GetRowKeyAt(0);
+                    var y = Price2Return(raw_y).Chunk(7).Select(x => x.Value.Sum()).Between(First_key,endDate);
+                    var etf = raw_etf.Between(First_key, endDate);
 
                     Target_List.Add(y);
                     Feature_List.Add(features);
@@ -262,14 +266,11 @@ namespace Preprocessing
             if (Return_type =="log")
             {   
                 
-				var log_return = (data / data.Shift(1)).Log();
-				return log_return;
+				return (data / data.Shift(1)).Log();
             }
-            else
-            {   
+
                 var relative_return = (data / data.Shift(1)).Diff(1);
                 return relative_return;
-            }
 
         }
 
@@ -277,11 +278,9 @@ namespace Preprocessing
         public static Frame<DateTime,string> MultiLagFeaturesEng(Series<DateTime,double> data)
         {
            
-            var JointData = Features_engineering(data,1)
-                                        .Join(Features_engineering(data,2), JoinKind.Inner)
-                                        .Join(Features_engineering(data,3),JoinKind.Inner);
-
-            return JointData;
+            return Features_engineering(data,1)
+                .Join(Features_engineering(data,2), JoinKind.Inner)
+                .Join(Features_engineering(data,3),JoinKind.Inner);
 
         }
 
@@ -365,7 +364,7 @@ namespace Preprocessing
 
             }.Frame;
 
-
+          
             return Features;
          
 		}

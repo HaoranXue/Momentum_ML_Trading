@@ -17,7 +17,6 @@ namespace MLtrading
 
             if (Order =="0")
             {
-
 				BackTest();
             }
             else if (Order =="1")
@@ -43,33 +42,30 @@ namespace MLtrading
 			String catagory = Console.ReadLine();
 
             var pro = new DataPreProcessing();
-            pro.Run("2009-01-01",100,catagory);
+            pro.Run("2014-01-01",100,catagory);
 
 
             for (int i = 0; i < pro.Trade_ETF.Count; i++)
             {
 
-                var features_array = pro.Feature_List[i].ToArray2D<float>();
+                var features_array = pro.Feature_List[i].ToArray2D<double>();
                 var y = pro.Target_List[i];
                 var fy = new FrameBuilder.Columns<DateTime, string>{
                      { "Y"  , y  }
                 }.Frame;
 
-                var ary = fy.ToArray2D<float>();
+                var ary = fy.ToArray2D<double>();
 
+                var data = pro.Feature_List[i].Join(fy);
+                data.SaveCsv("dataset.csv");
 
-                var model = Learning.Fit(features_array, ary);
+                Console.WriteLine(features_array.GetLength(0));
+                Learning.Fit(features_array, ary);
+
             }
  
 
             Console.ReadKey();
-
-
-
-
-
-
-
 
 			//Learning_momentum
 			//Learning.Run();
