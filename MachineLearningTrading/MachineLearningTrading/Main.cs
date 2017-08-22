@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using Deedle;
 using machinelearning;
 using Preprocessing;
+
 
 namespace MLtrading
 {
@@ -10,7 +13,7 @@ namespace MLtrading
     {
         public static void Main(string[] args)
         {
-			Directory.SetCurrentDirectory("/Users/xuehaoran/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading");
+			Directory.SetCurrentDirectory("C:/Users/Jeremy/Documents/GitHub/Machine_Learning_trading-Project/MachineLearningTrading/MachineLearningTrading");
 
             Console.WriteLine("Enter 0 for backtest the strategy, enter 1 for trading via the strategy");
             string Order = Console.ReadLine();
@@ -38,39 +41,63 @@ namespace MLtrading
 
 			// Data Preprocessing
 
-			Console.WriteLine("Trading Fixed Income or Equity Strategy ?");
-			String catagory = Console.ReadLine();
+			Console.WriteLine("Please enter the start date you want to do the backtest(Format: YYYY-MM-DD)");
+			String Date = Console.ReadLine();
+            Console.WriteLine("Please enter the weeks you want to do the backtest");
+            String Weeks = Console.ReadLine();
 
-            var pro = new DataPreProcessing();
-            pro.Run("2014-01-01",100,catagory);
-
-
-            for (int i = 0; i < pro.Trade_ETF.Count; i++)
+            for (int i = 0; i < Convert.ToInt64(Weeks); i++)
             {
+                Console.WriteLine("ETF going to buy for next week.");
+                // seting Datapreprocessing class 
+                var pro = new DataPreProcessing();
+                var Today = DateTime.Parse(Date).AddDays(i*7);
 
-                var features_array = pro.Feature_List[i].ToArray2D<double>();
-                var y = pro.Target_List[i];
-                var fy = new FrameBuilder.Columns<DateTime, string>{
+                pro.Run(Today.ToString(), 112, "Equity");
+
+                double[] predictions = new double[pro.Trade_ETF.Count];
+
+                for (int j = 0; j < pro.Trade_ETF.Count; j++)
+                {
+
+                    var y = pro.Target_List[j];
+
+                    var fy = new FrameBuilder.Columns<DateTime, string>{
                      { "Y"  , y  }
-                }.Frame;
+                    }.Frame;
+                    var data = pro.Feature_List[j].Join(fy);
+                    var pred_Features = pro.pred_Feature_List[j];
 
-                var ary = fy.ToArray2D<double>();
+                    data.SaveCsv("dataset.csv");
 
-                var data = pro.Feature_List[i].Join(fy);
-                data.SaveCsv("dataset.csv");
+                    var prediction = Learning.Fit(pred_Features);
 
-                Console.WriteLine(features_array.GetLength(0));
-                Learning.Fit(features_array, ary);
+                    predictions[j] = prediction;
+                }
+
+                ArrayList prediction_sort = new ArrayList(predictions);
+                prediction_sort.Sort();
+
+                double hold = Convert.ToDouble(prediction_sort[prediction_sort.Count - 5]);
+
+                for (int m = 0; m < pro.Trade_ETF.Count; m++)
+                {
+                    if (predictions[m] >= hold)
+                    {   
+                        Console.WriteLine(pro.Trade_ETF[m]);
+                    }
+                }
+
+
 
             }
- 
 
             Console.ReadKey();
 
-			//Learning_momentum
-			//Learning.Run();
 
-		}
+
+
+        }
         public static void Trade()
         {
 

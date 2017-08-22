@@ -1,34 +1,18 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-//using Accord.MachineLearning;
-using Deedle;
-using Accord;
-using Accord.IO;
-using Accord.MachineLearning.VectorMachines;
-using Accord.MachineLearning.VectorMachines.Learning;
-using Accord.Math;
-using Accord.Statistics;
-using Accord.Statistics.Analysis;
-using Accord.Statistics.Kernels;
-using AForge;
-using SharpLearning.DecisionTrees.Learners;
-using SharpLearning.AdaBoost.Learners;
-using SharpLearning.Containers;
+using SharpLearning.GradientBoost.Learners;
 using SharpLearning.InputOutput.Csv;
 
 namespace machinelearning
 {
     public static class Learning
     {
-        public static void Fit(double[,] X, double[,] y)
+        public static double Fit(double[] pred_Features)
         {
-            
+   
             var parser = new CsvParser(() => new StreamReader("dataset.csv"),separator:',');
             var targetName = "Y";
 
-			
-            
 			var observations = parser.EnumerateRows(c => c != targetName)
 		    .ToF64Matrix();
 
@@ -36,57 +20,56 @@ namespace machinelearning
 				.ToF64Vector();
             // read regression targets
 
-            var learner2 = new RegressionAdaBoostLearner();
-			var learner = new RegressionDecisionTreeLearner(maximumTreeDepth: 5);
-
-			// learns a RegressionRandomForestModel
+            var learner = new RegressionHuberLossGradientBoostLearner();
 			var model = learner.Learn(observations, targets);
-            var prediction = model.Predict(observations);
-		}
+            var prediction = model.Predict(pred_Features);
+
+            return prediction;
+        }
 
 
-        public static double[][] Trans_x(double[,] X)
+        public static float[][] Trans_x(double[,] X)
         {
 
 			var dim0 = X.GetLength(0);
 			var dim1 = X.GetLength(1);
 
 
-            double[][] X_trans = new double[dim0][];
+            float[][] X_trans = new float[dim0][];
 
 			for (int i = 0; i < dim0; i++)
 			{
-                X_trans[i] = new double[dim1];
+                X_trans[i] = new float[dim1];
 
 				for (int j = 0; j < dim1; j++)
 				{
-                      X_trans[i][j] = X[i, j];
+                      X_trans[i][j] = (float) X[i, j];
                 }
 			}
 
             return X_trans;
 		}
 
-        public static bool[] Trans_y(double[,] X)
+        public static float[] Trans_y(double[,] X)
 		{
 
 			var dim0 = X.GetLength(0);
 			var dim1 = X.GetLength(1);
 
 
-            bool[] X_trans = new bool[dim0];
+            float[] X_trans = new float[dim0];
 
 			for (int i = 0; i < dim0; i++)
 			{
 
                 if (X[i, 0] > 0 )
                 {
-                    X_trans[i]=true;
+                    X_trans[i]=1f;
                 }
 
                 else
                 {
-                    X_trans[i] = false;
+                    X_trans[i] = 0f;
                 }
 
             }
