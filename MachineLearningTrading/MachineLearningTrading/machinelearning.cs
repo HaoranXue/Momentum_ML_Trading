@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using SharpLearning.GradientBoost.Learners;
+using SharpLearning.Metrics.Regression;
 using SharpLearning.InputOutput.Csv;
+using SharpLearning.CrossValidation.TrainingTestSplitters;
+using SharpLearning.Optimization;
 
 namespace machinelearning
 {
@@ -20,8 +23,57 @@ namespace machinelearning
 				.ToF64Vector();
             // read regression targets
 
-            var learner = new RegressionHuberLossGradientBoostLearner();
-			var model = learner.Learn(observations, targets);
+            
+            var metric = new MeanSquaredErrorRegressionMetric();
+
+            var parameters = new double[][]
+            {
+                new double[] { 80, 300 }, // iterations (min: 20, max: 100)
+                new double[] { 0.02, 0.2 }, // learning rate (min: 0.02, max: 0.2)
+                new double[] { 8, 15 }, // maximumTreeDepth (min: 8, max: 15)
+                new double[] { 0.5, 0.9 }, // subSampleRatio (min: 0.5, max: 0.9)
+                new double[] { 1,  observations.ColumnCount}, // featuresPrSplit (min: 1, max: numberOfFeatures)
+            };
+
+
+            var validationSplit = new RandomTrainingTestIndexSplitter<double>(trainingPercentage: 0.7, seed: 24)
+                                                                             .SplitSet(observations, targets);
+
+            Func<double[], OptimizerResult> minimize = p =>
+            {
+                // create the candidate learner using the current optimization parameters.
+                var candidateLearner = new RegressionSquareLossGradientBoostLearner(
+                                     iterations: (int)p[0],
+                                     learningRate: p[1],
+                                     maximumTreeDepth: (int)p[2],
+                                     subSampleRatio: p[3],
+                                     featuresPrSplit: (int)p[4],
+                                     runParallel: false);
+
+                var candidateModel = candidateLearner.Learn(validationSplit.TrainingSet.Observations,
+                validationSplit.TrainingSet.Targets);
+
+                var validationPredictions = candidateModel.Predict(validationSplit.TestSet.Observations);
+                var candidateError = metric.Error(validationSplit.TestSet.Targets, validationPredictions);
+
+                return new OptimizerResult(p, candidateError);
+            };
+
+
+            var optimizer = new RandomSearchOptimizer(parameters, iterations: 30, runParallel: true);
+
+            var result = optimizer.OptimizeBest(minimize);
+            var best = result.ParameterSet;
+
+            var learner = new RegressionSquareLossGradientBoostLearner(
+                                iterations: (int)best[0],
+                                learningRate: best[1],
+                                maximumTreeDepth: (int)best[2],
+                                subSampleRatio: best[3],
+                                featuresPrSplit: (int)best[4],
+                                runParallel: false);
+
+            var model = learner.Learn(observations, targets);
             var prediction = model.Predict(pred_Features);
 
             return prediction;
@@ -76,7 +128,6 @@ namespace machinelearning
 
 			return X_trans;
 		}
-
 
 
 		public static float GetRandomNumber(double minimum, double maximum)

@@ -7,7 +7,7 @@ namespace Preprocessing
 
     public class DataPreProcessing
     {
-        // List to store the output data 
+        // Lists to store the output data 
 		public List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
 		public List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
 		public List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
@@ -15,28 +15,28 @@ namespace Preprocessing
 		public List<string> Trade_ETF = new List<string>();
         public List<double[]> pred_Feature_List = new List<double[]>();                                   
 
+        // Main function for DataPreProcessing Class to run pre processing
         public void Run(string date, int weeks,string catagory)
         {
 
-
+            // Get the namelist of index in the defined catagory
             string[] Index_namelist = Trading_category(catagory);
+            // Get the namelist of mapping ETF 
             string[] Mapping_ETF_namelist = Get_mapping_ETF(Index_namelist);
-
+            // Get the historical data of Index 
             var Index_data = Get_DataFromList(Index_namelist, "Index");
+            // Get the historical data of ETF
             var ETF_data = Get_DataFromList(Mapping_ETF_namelist, "ETF");
-
+            // Adjust the historical data of index by its based Currency
             var Adj_Index_data = Adjust_index_fx(Index_data, Index_namelist);
+            // Adjust the historical data of ETF by its based Currency
             var Adj_ETF_data = Adjust_etf_fx(ETF_data, Mapping_ETF_namelist);
-
+            // Date of running the algorithm 
             var endDate = DateTime.Parse(date);
+            // First day of traning set 
             var startDate = endDate.AddDays(-weeks * 7);
 
-            //List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
-            //List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
-            //List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
-            //List<string> Trade_Index = new List<string>();
-            //List<string> Trade_ETF = new List<string>();
-           
+
             for (int i = 0; i < Index_namelist.Length; i++)
             {
 
@@ -44,31 +44,35 @@ namespace Preprocessing
 
                 double init_value_Index = Index_data[i].Get(startDate);
                 double init_value_ETF = ETF_data[i].Get(startDate);
-
+                // If the net value of ETF and Index equals to 1, it means 
+                // ETF or Index didn't exist at the start date. 
                 if (init_value_ETF.Equals(1)  || init_value_Index.Equals(1))
                 {
                     continue;
-
                 }
                 else
-                {
+                {   // Get the historical time_series of ith Index
                     var raw_y = Adj_Index_data[i].Between(startDate, endDate);
+                    // Generate trainning features for Index time-series data and drops sparserows. 
                     var features = MultiLagFeaturesEng(Price2Return(raw_y)
                                                         .Chunk(7)
                                                         .Select(x => x.Value.Sum())).DropSparseRows();
-
+                    // Generate the features which are going to be used for prediction 
                     var pred_features = Features_engineering_pred(Price2Return(raw_y)
                                                         .Chunk(7)
                                                         .Select(x => x.Value.Sum()));      
-
+                    // Get the etf Return 
                     var raw_etf = Price2Return(Adj_ETF_data[i].Between(startDate,endDate))
                                                           .Chunk(7)
                                                           .Select(x => x.Value.Sum());
-                    
+                    // Get the starting date of features matrix because we dropped sparserows before
                     var First_key = features.GetRowKeyAt(0);
+                    // Get the target y in this time periods 
                     var y = Price2Return(raw_y).Chunk(7).Select(x => x.Value.Sum()).Between(First_key,endDate);
+                    // Get the ETF return in this time periods
                     var etf = raw_etf.Between(First_key, endDate);
 
+                    // Store the processed data in the list 
                     Target_List.Add(y);
                     Feature_List.Add(features);
                     pred_Feature_List.Add(pred_features);
