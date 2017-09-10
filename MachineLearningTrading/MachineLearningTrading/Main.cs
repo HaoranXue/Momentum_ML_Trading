@@ -6,6 +6,7 @@ using Deedle;
 using machinelearning;
 using Preprocessing;
 using BacktestSystem;
+using System.Linq;
 
 
 namespace MLtrading
@@ -21,7 +22,33 @@ namespace MLtrading
 
             if (Order =="0")
             {
-				BackTest();
+                Console.WriteLine("Please enter the start date you want to do the backtest(Format: YYYY-MM-DD)");
+                string Date = Console.ReadLine();
+                Console.WriteLine("Please enter the weeks you want to do the backtest");
+                string Weeks = Console.ReadLine();
+
+                var StrategyNetValue = BackTest( Date, Weeks).ToArray();
+
+                double MaxDD = 0; 
+
+                for (int i = 1; i < StrategyNetValue.Length; i++)
+                {
+                    var MaxNetValue= StrategyNetValue.Take(i).Max();
+                    double drawdown = StrategyNetValue[i] / MaxNetValue;
+
+                    if (drawdown > MaxDD)
+                    {
+                        MaxDD = drawdown;
+                    }
+                }
+
+                Console.WriteLine("Maximum drawdown of This Strategy is: {2}", MaxDD);
+
+                var AnnualReturn= Math.Log(StrategyNetValue.Last()) /
+                                                         (Convert.ToDouble(Weeks)/50);
+
+                Console.WriteLine("Annual Return of This Strategy is: {2}", AnnualReturn);
+
                 Console.ReadKey();
             }
             else if (Order =="1")
@@ -36,15 +63,10 @@ namespace MLtrading
             }
 
         }
-        public static void BackTest()
+        public static List<double> BackTest(string Date, string Weeks)
         {
 
 			// Data Preprocessing
-
-			Console.WriteLine("Please enter the start date you want to do the backtest(Format: YYYY-MM-DD)");
-			String Date = Console.ReadLine();
-            Console.WriteLine("Please enter the weeks you want to do the backtest");
-            String Weeks = Console.ReadLine();
 
             var Mybacktest = new Backtest();
             Mybacktest.init();
@@ -100,6 +122,7 @@ namespace MLtrading
                 Hisc_netValue.Add(Mybacktest.rebalance(Today, ETFs.ToArray(), allocations));
             }
 
+           return Hisc_netValue;
 
         }
         public static void Trade()

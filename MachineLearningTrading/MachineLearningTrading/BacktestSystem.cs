@@ -117,7 +117,6 @@ namespace BacktestSystem
                         {
                             continue;
                         }
-
                     }
 
                 }
@@ -178,7 +177,5 @@ namespace BacktestSystem
 
             return List_data;
         }
-
-
     }
 }
