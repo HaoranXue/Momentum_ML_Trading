@@ -122,7 +122,7 @@ namespace BacktestSystem
                 }
             }
 
-            Console.WriteLine(Net_value);
+            Console.WriteLine("Current Net Value is {0}", Net_value);
             return Net_value;
             
         }
