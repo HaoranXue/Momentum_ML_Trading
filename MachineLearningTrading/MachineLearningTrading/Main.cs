@@ -31,6 +31,8 @@ namespace MLtrading
 
                 var StrategyNetValue = BackTest( Date, Weeks).ToArray();
 
+                SaveArrayAsCSV(StrategyNetValue, "Fixed_Income_nv.CSV");
+
                 double MaxDD = 0; 
 
                 for (int i = 1; i < StrategyNetValue.Length; i++)
@@ -88,7 +90,7 @@ namespace MLtrading
 
                 Console.WriteLine("Date: {0}", Today.ToString());
 
-                pro.Run(Today.ToString(), 112, "Equity");
+                pro.Run(Today.ToString(), 112, "Fixed Income");
 
                 double[] predictions = new double[pro.Trade_ETF.Count];
 
@@ -125,16 +127,14 @@ namespace MLtrading
                     }
                 }
 
+                
                 if (i ==0)
                 {
                     ETFs_holding = ETFs;
                 }
                 else
                 {
-                    var ETF_except = ETFs_holding.Except(ETFs);
-
-                    TurnOver += ETF_except.ToArray().GetLength(0) * 0.2;
-
+    
                     double[] holding_pred = ETFname2Prediction(ETFs_holding, predictions, pro);
                     double[] long_pred = ETFname2Prediction(ETFs, predictions, pro);
 
@@ -148,8 +148,11 @@ namespace MLtrading
                     {
                         ETFs_holding = ETFs;
                     }
+
+                    TurnOver += CaculateTurnOver(ETFs_holding, ETFs);
                 }
 
+                
                 Console.WriteLine("Long the following ETFs: ");
                 for (int n = 0; n < ETFs.Count; n++)
                 {
@@ -199,14 +202,12 @@ namespace MLtrading
                                                     double[] prediction,
                                                     DataPreProcessing Pro)
         {
-
             double[] PRE = new double[ETF.Count];
 
             for (int j = 0; j < ETF.Count; j++)
             {   
                 for (int i = 0; i < Pro.Trade_ETF.Count; i++)
                 {
-
                     if (Pro.Trade_ETF[i] == ETF[j])
                     {
                         PRE[j] = prediction[i];
@@ -221,10 +222,23 @@ namespace MLtrading
             return PRE;
         }
         
-        public static double CaculateTurnOver(string[] holding_ETFs, string[] new_ETFs)
+        public static double CaculateTurnOver(List<string> holding_ETFs, List<string> new_ETFs)
         {
+            double turnover = 0;
+            var Intersection = new_ETFs.Intersect(holding_ETFs);
+            turnover += (5 - Intersection.Count()) * 0.2; 
+            return turnover;
+        }
 
-            
+        public static void SaveArrayAsCSV<T>(T[] arrayToSave, string fileName)
+        {
+            using (StreamWriter file = new StreamWriter(fileName))
+            {
+                foreach (T item in arrayToSave)
+                {
+                    file.Write(item + ",");
+                }
+            }
         }
 
     }
