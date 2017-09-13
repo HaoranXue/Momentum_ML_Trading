@@ -56,10 +56,14 @@ namespace MLtrading
                 var StrategyReturn = NetValue2Return(StrategyNetValue);
                 Console.WriteLine("Standard Deviation of This Strategy is: {0}",
                                           Statistics.StandardDeviation(StrategyReturn));
+
+                Console.ReadKey();
+
             }
             else if (Order =="1")
             {
                 Trade();
+                Console.ReadKey();
             }
             else
             {
