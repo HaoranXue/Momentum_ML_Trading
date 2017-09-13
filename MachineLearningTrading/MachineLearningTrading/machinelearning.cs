@@ -21,6 +21,7 @@ namespace machinelearning
 
 			var targets = parser.EnumerateRows(targetName)
 				.ToF64Vector();
+            
             // read regression targets
 
             
@@ -41,7 +42,8 @@ namespace machinelearning
 
             Func<double[], OptimizerResult> minimize = p =>
             {
-                // create the candidate learner using the current optimization parameters.
+                // create the candidate learner using the current optimization parameters
+
                 var candidateLearner = new RegressionSquareLossGradientBoostLearner(
                                      iterations: (int)p[0],
                                      learningRate: p[1],
@@ -59,7 +61,7 @@ namespace machinelearning
                 return new OptimizerResult(p, candidateError);
             };
 
-
+            // Hyper-parameter tuning 
             var optimizer = new RandomSearchOptimizer(parameters, iterations: 30, runParallel: true);
 
             var result = optimizer.OptimizeBest(minimize);

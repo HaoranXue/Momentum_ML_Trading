@@ -53,7 +53,7 @@ namespace Preprocessing
                 else
                 {   // Get the historical time_series of ith Index
                     var raw_y = Adj_Index_data[i].Between(startDate, endDate);
-                    // Generate trainning features for Index time-series data and drops sparserows. 
+                    // Generate trainning features for Index time-series data and drops sparserows
                     var features = MultiLagFeaturesEng(Price2Return(raw_y)
                                                         .Chunk(7)
                                                         .Select(x => x.Value.Sum())).DropSparseRows();
@@ -88,9 +88,11 @@ namespace Preprocessing
 
 
         public static String[] Trading_category(String category)
-        {
+        {   
+            // Get the List of Fixed Income
+
             if (category == "Fixed Income")
-            {
+            {   
                 String[] fi_namelist = { "LECPTREU Index", "BCEX2T Index", "LGCPTRUU Index", "IYJD Index",
                                       "IBOXIG Index","LTITTREU Index","LETSTREU Index","FTFIBGT Index",
                                       "IDCOT1TR Index","BEIG1T Index"};
@@ -98,6 +100,7 @@ namespace Preprocessing
                 return fi_namelist;
 
             }
+            // Get the List of Equity
 
             else if (category == "Equity")
             {
@@ -119,7 +122,7 @@ namespace Preprocessing
             }
 
             else
-            {
+            {   
                 Console.WriteLine("Error: Input should be Fixed Income or Equity, Using default fixed income as category.");
 
                 String[] fi_namelist = { "LECPTREU Index", "BCEX2T Index", "LGCPTRUU Index", "IYJD Index",
@@ -133,10 +136,10 @@ namespace Preprocessing
 
         public static List<Series<DateTime, double>> Get_DataFromList(String[] namelist, string tag)
 
-        {
+        {   // Fuction can read the data from database based on the given name list
 
             if (tag == "Index")
-            {
+            {   
                 var Data = Frame.ReadCsv("data/Index Returns.csv").IndexRows<DateTime>("Date");
                 List<Series<DateTime, double>> List_data = new List<Series<DateTime, double>>();
 
@@ -149,7 +152,7 @@ namespace Preprocessing
                 return List_data;
             }
             else
-            {
+            {   
                 var Data = Frame.ReadCsv("data/ETF Returns.csv").IndexRows<DateTime>("Date");
                 List<Series<DateTime, double>> List_data = new List<Series<DateTime, double>>();
 
@@ -165,7 +168,9 @@ namespace Preprocessing
 
 
         public static string[] Get_mapping_ETF(string[] namelist)
-        {
+        {   
+            // Function can get Mapping ETF by given a name list of Index
+            
             var Mapping_table = Frame.ReadCsv("data/Mapping_Table.csv");
             var Tracking_ETF = Mapping_table.GetColumn<String>("Best Tracking ETF");
             var Index = Mapping_table.GetColumn<String>("Index");
@@ -193,7 +198,9 @@ namespace Preprocessing
 
         public static List<Series<DateTime, double>> Adjust_index_fx(List<Series<DateTime, double>> data, string[] namelist)
 
-        {
+        {   
+            //Adjust Index return to GBP based
+            
             var FX = Frame.ReadCsv("data/FX Returns.csv").IndexRows<DateTime>("Date").FillMissing(Direction.Forward);
            
             var GBPUSD = FX.Rows.Select(x => x
@@ -232,7 +239,10 @@ namespace Preprocessing
 
 
         public static List<Series<DateTime, double>> Adjust_etf_fx(List<Series<DateTime, double>> data, string[] namelist)
-		{
+		{   
+
+            //Adjust ETF return to GBP based
+
 			var FX = Frame.ReadCsv("data/FX Returns.csv").IndexRows<DateTime>("Date").FillMissing(Direction.Forward); ;
  
 			var GBPUSD = FX.Rows.Select(x =>
@@ -271,7 +281,10 @@ namespace Preprocessing
 
 
         public static Series<DateTime,double> Price2Return(Series<DateTime, double> data, string Return_type="log")
-        {
+        {   
+
+            //Transfer the price time-seires to return Time series
+
             if (Return_type =="log")
             {   
                 
@@ -285,7 +298,8 @@ namespace Preprocessing
 
 
         public static Frame<DateTime,string> MultiLagFeaturesEng(Series<DateTime,double> data)
-        {
+        {   
+            //Featreus Enginerring for multiple different lags
            
             return Features_engineering(data,1)
                 .Join(Features_engineering(data,2), JoinKind.Inner)
@@ -294,7 +308,10 @@ namespace Preprocessing
         }
 
         public static List<DateTime> Resample_key(string starttime, int weeks)
-        {
+        {   
+
+            //Generate a list of date by given start time and weeks
+
             List<DateTime> keys =new List<DateTime>();
 
             var startDate = DateTime.Parse(starttime);
@@ -312,6 +329,9 @@ namespace Preprocessing
 
         public static Frame<DateTime, string> Features_engineering(Series<DateTime, double> input, int shiftn)
         {   
+
+            //Features Engineering function for training machine learning
+
             var data = input.Shift(shiftn);
 
             var MA3 = data.Window(3).Select(x => x.Value.Mean());
@@ -379,7 +399,10 @@ namespace Preprocessing
 		}
 
         public static double[] Features_engineering_pred(Series<DateTime, double> input)
-        {
+        {   
+
+            // Features engineering function for generating prediction input
+
             int shiftn = 0;
             var data = input.Shift(shiftn);
 
@@ -473,6 +496,8 @@ namespace Preprocessing
 
         public static double RSI_func(KeyValuePair<DateTime,Series<DateTime,double>> x, int len)
         {   
+            // Fuction to caculate the RSI of time-series to measure the momentum
+
             double positive=0, negative=0;
             int pos_num = 0, neg_num = 0;
 
@@ -523,7 +548,11 @@ namespace Preprocessing
 
 
         public static double K_func(KeyValuePair<DateTime, Series<DateTime, double>> x, int len)
-        {
+        {   
+
+            // Function to cacualte the K% of time-series to measure the momentum
+
+
             double init = 1;
 
             double[] list = new double[len+1];

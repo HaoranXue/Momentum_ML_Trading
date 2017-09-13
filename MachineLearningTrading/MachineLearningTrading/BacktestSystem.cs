@@ -20,7 +20,7 @@ namespace BacktestSystem
         public double cash = 1;
         public double position = 0; 
 
-        public void init()
+        public void Init()
         {   
             // Set the initial net value equals to 1 
             Net_value = 1;
@@ -40,7 +40,7 @@ namespace BacktestSystem
 
         }
 
-        public double rebalance(DateTime date, string[] ETFs, double[] allocation)
+        public double Rebalance(DateTime date, string[] ETFs, double[] allocation)
         {
             // Update Net value 
             if (ETF_holding.Count==0)
@@ -118,7 +118,7 @@ namespace BacktestSystem
                             continue;
                         }
                     }
-
+                   
                 }
             }
 

@@ -4,8 +4,8 @@ using System.Collections;
 using System.IO;
 using Deedle;
 using MathNet.Numerics.Statistics;
-using MathNet.Numerics.LinearAlgebra;
 using machinelearning;
+using portfolio_optimization;
 using Preprocessing;
 using BacktestSystem;
 using System.Linq;
@@ -29,33 +29,7 @@ namespace MLtrading
                 Console.WriteLine("Please enter the weeks you want to do the backtest");
                 string Weeks = Console.ReadLine();
 
-                var StrategyNetValue = BackTest( Date, Weeks).ToArray();
-
-                SaveArrayAsCSV(StrategyNetValue, "Fixed_Income_nv.CSV");
-
-                double MaxDD = 0; 
-
-                for (int i = 1; i < StrategyNetValue.Length; i++)
-                {
-                    var MaxNetValue= StrategyNetValue.Take(i).Max();
-                    double drawdown = 1-StrategyNetValue[i] / MaxNetValue;
-
-                    if (drawdown > MaxDD)
-                    {
-                        MaxDD = drawdown;
-                    }
-                }
-
-                Console.WriteLine("Maximum drawdown of This Strategy is: {0}",MaxDD);
-
-                var AnnualReturn= Math.Log(StrategyNetValue.Last()) /
-                                                            (Convert.ToDouble(Weeks)/50);
-
-                Console.WriteLine("Annual Return of This Strategy is: {0}",AnnualReturn);
-
-                var StrategyReturn = NetValue2Return(StrategyNetValue);
-                Console.WriteLine("Standard Deviation of This Strategy is: {0}",
-                                          Statistics.StandardDeviation(StrategyReturn));
+                BackTest( Date, Weeks);
 
                 Console.ReadKey();
 
@@ -63,113 +37,229 @@ namespace MLtrading
             else if (Order =="1")
             {
                 Trade();
+
                 Console.ReadKey();
             }
             else
             {
                 Console.WriteLine("Error of setting trade or backtet. ");
+
+                Console.ReadKey();
             }
 
-            Console.ReadKey();
 
         }
-        public static List<double> BackTest(string Date, string Weeks)
+
+        public static void BackTest(string Date, string Weeks)
         {
 
 			// Data Preprocessing
 
             var Mybacktest = new Backtest();
-            Mybacktest.init();
+            Mybacktest.Init();
 
             List<double> Hisc_netValue = new List<double>();
-            List<string> ETFs_holding = new List<string>();
+            List<string> ETFs_holding_FI = new List<string>();
+            List<string> ETFs_holding_Equ = new List<string>();
+
             double TurnOver = 0;
 
             for (int i = 0; i < Convert.ToInt64(Weeks); i++)
             {   
 
                 // seting Datapreprocessing class 
-                var pro = new DataPreProcessing();
+                var pro_FI = new DataPreProcessing();
+                var pro_Equ = new DataPreProcessing();
+
                 var Today = DateTime.Parse(Date).AddDays(i*7);
 
                 Console.WriteLine("Date: {0}", Today.ToString());
 
-                pro.Run(Today.ToString(), 112, "Fixed Income");
+                // cleaning data use data preprocessing class 
+                pro_FI.Run(Today.ToString(), 112, "Fixed Income");
+                pro_Equ.Run(Today.ToString(), 112, "Equity");
 
-                double[] predictions = new double[pro.Trade_ETF.Count];
+                double[] predictions_FI = new double[pro_FI.Trade_ETF.Count];
+                double[] predictions_Equ = new double[pro_Equ.Trade_ETF.Count];
 
-                for (int j = 0; j < pro.Trade_ETF.Count; j++)
+                List<string> Blend_ETFs = new List<string>();
+
+                // FI prediction and buying
+
+                for (int j = 0; j < pro_FI.Trade_ETF.Count; j++)
                 {
-
-                    var y = pro.Target_List[j];
+                    var y = pro_FI.Target_List[j];
 
                     var fy = new FrameBuilder.Columns<DateTime, string>{
                      { "Y"  , y  }
                     }.Frame;
-                    var data = pro.Feature_List[j].Join(fy);
-                    var pred_Features = pro.pred_Feature_List[j];
+                    var data = pro_FI.Feature_List[j].Join(fy);
+                    var pred_Features = pro_FI.pred_Feature_List[j];
 
                     data.SaveCsv("dataset.csv");
 
                     var prediction = Learning.Fit(pred_Features);
 
-                    predictions[j] = prediction;
+                    predictions_FI[j] = prediction;
                 }
 
-                ArrayList prediction_sort = new ArrayList(predictions);
-                prediction_sort.Sort();
 
-                double hold = Convert.ToDouble(prediction_sort[prediction_sort.Count - 5]);
+                var hold_FI = PredRanking(predictions_FI,5);
 
-                List<string> ETFs = new List<string>();
+                List<string> ETFs_FI = new List<string>();
 
-                for (int m = 0; m < pro.Trade_ETF.Count; m++)
+                for (int m = 0; m < pro_FI.Trade_ETF.Count; m++)
                 {
-                    if (predictions[m] >= hold)
+                    if (predictions_FI[m] >= hold_FI)
                     {   
-                        ETFs.Add(pro.Trade_ETF[m]);
+                        ETFs_FI.Add(pro_FI.Trade_ETF[m]);
                     }
                 }
 
-                
                 if (i ==0)
                 {
-                    ETFs_holding = ETFs;
+                    ETFs_holding_FI = ETFs_FI;
                 }
                 else
                 {
-    
-                    double[] holding_pred = ETFname2Prediction(ETFs_holding, predictions, pro);
-                    double[] long_pred = ETFname2Prediction(ETFs, predictions, pro);
+                    
+                    double[] holding_pred = ETFname2Prediction(ETFs_holding_FI, predictions_FI, pro_FI);
+                    double[] long_pred = ETFname2Prediction(ETFs_FI, predictions_FI, pro_FI);
 
                     double trade_diff= long_pred.Sum() - holding_pred.Sum();
 
                     if (trade_diff < 0.10)
                     {
-                        ETFs = ETFs_holding;
+                        ETFs_FI = ETFs_holding_FI;
                     }
                     else
                     {
-                        ETFs_holding = ETFs;
+                        ETFs_holding_FI = ETFs_FI;
                     }
 
-                    TurnOver += CaculateTurnOver(ETFs_holding, ETFs);
+                    TurnOver += CaculateTurnOver(ETFs_holding_FI, ETFs_FI,0.04);
                 }
 
                 
-                Console.WriteLine("Long the following ETFs: ");
-                for (int n = 0; n < ETFs.Count; n++)
+                Console.WriteLine("Long the following Fixed Income ETFs: ");
+                for (int n = 0; n < ETFs_FI.Count; n++)
                 {
-                    Console.WriteLine(ETFs[n]);
+                    Console.WriteLine(ETFs_FI[n]);
+                    Blend_ETFs[n] = ETFs_FI[n];
                 }
 
-                double[] allocations = { 0.2, 0.2, 0.2, 0.2, 0.2 };
-                Hisc_netValue.Add(Mybacktest.rebalance(Today, ETFs.ToArray(), allocations));
+				// Equity ETF predict and buy 
+
+
+                for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
+				{
+
+                    var y = pro_Equ.Target_List[j];
+
+					var fy = new FrameBuilder.Columns<DateTime, string>{
+					 { "Y"  , y  }
+					}.Frame;
+                    var data = pro_Equ.Feature_List[j].Join(fy);
+                    var pred_Features = pro_Equ.pred_Feature_List[j];
+
+					data.SaveCsv("dataset.csv");
+
+					var prediction = Learning.Fit(pred_Features);
+
+                    predictions_Equ[j] = prediction;
+				}
+
+
+				List<string> ETFs_Equ = new List<string>();
+
+                var hold_Equ = PredRanking(predictions_Equ, 5);
+
+                for(int m = 0; m < pro_Equ.Trade_ETF.Count; m++)
+				
+                {
+                    if (predictions_Equ[m] >= hold_Equ)
+					{
+                        ETFs_Equ.Add(pro_Equ.Trade_ETF[m]);
+					}
+				}
+
+				if (i == 0)
+				{
+					ETFs_holding_Equ = ETFs_Equ;
+				}
+				else
+				{
+
+                    double[] holding_pred = ETFname2Prediction(ETFs_holding_Equ, predictions_Equ, pro_Equ);
+                    double[] long_pred = ETFname2Prediction(ETFs_Equ, predictions_Equ, pro_Equ);
+
+					double trade_diff = long_pred.Sum() - holding_pred.Sum();
+
+					if (trade_diff < 0.10)
+					{
+						ETFs_Equ = ETFs_holding_Equ;
+					}
+					else
+					{
+						ETFs_holding_Equ = ETFs_Equ;
+					}
+
+					TurnOver += CaculateTurnOver(ETFs_holding_Equ, ETFs_Equ,0.16);
+				}
+
+
+				Console.WriteLine("Long the following Equity ETFs: ");
+				for (int n = 0; n < ETFs_Equ.Count; n++)
+				{
+					Console.WriteLine(ETFs_Equ[n]);
+                    Blend_ETFs[n+ETFs_FI.Count()] = ETFs_Equ[n];
+				}
+
+                // Update Netvalue 
+
+				double[] allocations = { 0.04, 0.04, 0.04, 0.04, 0.04, 0.16, 0.16, 0.16, 0.16, 0.16};
+                Hisc_netValue.Add(Mybacktest.Rebalance(Today, Blend_ETFs.ToArray(), allocations));
+            
             }
 
-           Console.WriteLine("Overall TurnOver: {0}", TurnOver);
 
-           return Hisc_netValue;
+            var StrategyNetValue = Hisc_netValue.ToArray();
+
+			double MaxDD = 0;
+
+			for (int i = 1; i < StrategyNetValue.Length; i++)
+			{
+				var MaxNetValue = StrategyNetValue.Take(i).Max();
+				double drawdown = 1 - StrategyNetValue[i] / MaxNetValue;
+
+				if (drawdown > MaxDD)
+				{
+					MaxDD = drawdown;
+				}
+			}
+
+			Console.WriteLine("Maximum drawdown of This Strategy is: {0}", MaxDD);
+
+			var AnnualReturn = Math.Log(StrategyNetValue.Last()) /
+														(Convert.ToDouble(Weeks) / 50);
+
+			Console.WriteLine("Annual Return of This Strategy is: {0}", AnnualReturn);
+
+			var StrategyReturn = NetValue2Return(StrategyNetValue);
+			Console.WriteLine("Standard Deviation of This Strategy is: {0}",
+									  Statistics.StandardDeviation(StrategyReturn));
+
+            Console.WriteLine("Overall TurnOver: {0}", TurnOver);
+
+            double[] BTmetrics = new double[4];
+            BTmetrics[0] = AnnualReturn;
+            BTmetrics[1] = MaxDD;
+            BTmetrics[2] = Statistics.StandardDeviation(StrategyReturn)*Math.Sqrt(50);
+            BTmetrics[3] = TurnOver;
+
+            SaveArrayAsCSV(BTmetrics,"BacktestMetrics.csv");
+            SaveArrayAsCSV(StrategyNetValue, "Fixed_Income_nv.CSV");
+
 
         }
 
@@ -226,13 +316,14 @@ namespace MLtrading
             return PRE;
         }
         
-        public static double CaculateTurnOver(List<string> holding_ETFs, List<string> new_ETFs)
+        public static double CaculateTurnOver(List<string> holding_ETFs, List<string> new_ETFs,double Pcent)
         {
             double turnover = 0;
             var Intersection = new_ETFs.Intersect(holding_ETFs);
-            turnover += (5 - Intersection.Count()) * 0.2; 
+            turnover += (5 - Intersection.Count()) * Pcent; 
             return turnover;
         }
+
 
         public static void SaveArrayAsCSV<T>(T[] arrayToSave, string fileName)
         {
@@ -244,6 +335,17 @@ namespace MLtrading
                 }
             }
         }
+
+        public static double PredRanking(double[] predictions, int place)
+        {
+            ArrayList prediction_sort = new ArrayList(predictions);
+			prediction_sort.Sort();
+            double hold = Convert.ToDouble(prediction_sort[prediction_sort.Count - place]);
+
+            return hold;
+		}
+
+
 
     }
 }
