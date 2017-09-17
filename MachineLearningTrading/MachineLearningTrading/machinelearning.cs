@@ -62,7 +62,7 @@ namespace machinelearning
             };
 
             // Hyper-parameter tuning 
-            var optimizer = new RandomSearchOptimizer(parameters, iterations: 30, runParallel: true);
+            var optimizer = new RandomSearchOptimizer(parameters, iterations: 50, runParallel: true);
 
             var result = optimizer.OptimizeBest(minimize);
             var best = result.ParameterSet;

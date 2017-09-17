@@ -30,24 +30,17 @@ namespace MLtrading
                 string Weeks = Console.ReadLine();
 
                 BackTest( Date, Weeks);
-
-                Console.ReadKey();
-
             }
             else if (Order =="1")
             {
                 Trade();
-
-                Console.ReadKey();
             }
             else
             {
                 Console.WriteLine("Error of setting trade or backtet. ");
-
-                Console.ReadKey();
             }
 
-
+            Console.ReadKey();
         }
 
         public static void BackTest(string Date, string Weeks)
@@ -140,12 +133,14 @@ namespace MLtrading
                     TurnOver += CaculateTurnOver(ETFs_holding_FI, ETFs_FI,0.04);
                 }
 
-                
+
+                // double[] AllocationFI= PO.ETFs2Allocation(ETFs_FI, pro_FI);
+
                 Console.WriteLine("Long the following Fixed Income ETFs: ");
                 for (int n = 0; n < ETFs_FI.Count; n++)
                 {
                     Console.WriteLine(ETFs_FI[n]);
-                    Blend_ETFs[n] = ETFs_FI[n];
+                    Blend_ETFs.Add(ETFs_FI[n]);
                 }
 
 				// Equity ETF predict and buy 
@@ -195,7 +190,7 @@ namespace MLtrading
 
 					double trade_diff = long_pred.Sum() - holding_pred.Sum();
 
-					if (trade_diff < 0.10)
+					if (trade_diff < 0.1)
 					{
 						ETFs_Equ = ETFs_holding_Equ;
 					}
@@ -207,18 +202,37 @@ namespace MLtrading
 					TurnOver += CaculateTurnOver(ETFs_holding_Equ, ETFs_Equ,0.16);
 				}
 
+                // double[] AllocationEqu = PO.ETFs2Allocation(ETFs_FI, pro_FI);
 
-				Console.WriteLine("Long the following Equity ETFs: ");
+                Console.WriteLine("Long the following Equity ETFs: ");
 				for (int n = 0; n < ETFs_Equ.Count; n++)
 				{
 					Console.WriteLine(ETFs_Equ[n]);
-                    Blend_ETFs[n+ETFs_FI.Count()] = ETFs_Equ[n];
+                    Blend_ETFs.Add(ETFs_Equ[n]);
 				}
 
-                // Update Netvalue 
+                //  Update Netvalue
 
-				double[] allocations = { 0.04, 0.04, 0.04, 0.04, 0.04, 0.16, 0.16, 0.16, 0.16, 0.16};
-                Hisc_netValue.Add(Mybacktest.Rebalance(Today, Blend_ETFs.ToArray(), allocations));
+                //double[] allocations = new double[10];
+
+                //for (int fi = 0; fi < 5; fi++)
+                //{
+                //    allocations[fi] = AllocationFI[fi] * 0.2;
+                //}
+
+                //for (int equ = 0; equ < 5; equ++)
+                //{
+                //    allocations[equ + 5] = AllocationEqu[equ] * 0.8;
+                //}
+
+                //foreach (var item in allocations)
+                //{
+                //    Console.WriteLine(item);
+                //}
+
+                double[] EqualAllo = { 0.04,0.04,0.04,0.04,0.04,0.16,0.16,0.16,0.16,0.16};
+                
+                Hisc_netValue.Add(Mybacktest.Rebalance(Today, Blend_ETFs.ToArray(), EqualAllo));
             
             }
 
@@ -258,7 +272,7 @@ namespace MLtrading
             BTmetrics[3] = TurnOver;
 
             SaveArrayAsCSV(BTmetrics,"BacktestMetrics.csv");
-            SaveArrayAsCSV(StrategyNetValue, "Fixed_Income_nv.CSV");
+            SaveArrayAsCSV(StrategyNetValue, "Net_value.CSV");
 
 
         }
