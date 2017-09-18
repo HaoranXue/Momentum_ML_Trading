@@ -64,20 +64,18 @@ namespace portfolio_optimization
 
             engine.Evaluate("library(PortfolioAnalytics) ");
             
-            engine.Evaluate("raw_data <- t(read.csv('Hisc_array.csv',header = FALSE))[-101,]");
-            engine.Evaluate("data <- matrix(vector(),1000,5)");
-            engine.Evaluate("for(i in 1:5){data[,i] = sample(raw_data[,i], 1000,replace = TRUE)}");
+            engine.Evaluate("data <- t(read.csv('Hisc_array.csv',header = FALSE))[-101,]");
 
-            engine.Evaluate("rownames(data) <- seq(1,1000,1)");
+            engine.Evaluate("rownames(data) <- seq(1,100,1)");
             engine.Evaluate("colnames(data) <- c('x1','x2','x3','x4','x5')");
 
             engine.Evaluate("portfolio <- portfolio.spec(colnames(data)) ");
 
             engine.Evaluate("portfolio <- add.constraint(portfolio,  type = 'weighted_sum',min_sum=0.99, max_sum=1.01)");
-            engine.Evaluate("portfolio <- add.constraint(portfolio, type = 'box', min = 0.05, max = 0.3)");
+            engine.Evaluate("portfolio <- add.constraint(portfolio, type = 'box', min = 0.1, max = 0.3)");
 
-            engine.Evaluate("portfolio <- add.objective(portfolio=portfolio, type='risk', name='VaR',arguments = list(p = 0.99, method = 'historical', portfolio_method = 'component'), enabled = TRUE)");
-            engine.Evaluate("result<- optimize.portfolio(as.ts(data), portfolio = portfolio, search_size = 2000, trace=TRUE, traceDE=5)");
+            engine.Evaluate("portfolio <- add.objective(portfolio=portfolio, type='risk', name='VaR',arguments = list(p = 0.97, method = 'historical', portfolio_method = 'component'), enabled = TRUE)");
+            engine.Evaluate("result<- optimize.portfolio(as.ts(data), portfolio = portfolio, )");
 
             double[] allocations = engine.Evaluate("result$weights").AsNumeric().ToArray();
 

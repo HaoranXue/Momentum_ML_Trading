@@ -54,6 +54,8 @@ namespace MLtrading
             List<double> Hisc_netValue = new List<double>();
             List<string> ETFs_holding_FI = new List<string>();
             List<string> ETFs_holding_Equ = new List<string>();
+            string[][] trading_history_ETF = new string[Convert.ToInt64(Weeks)][];
+            double[][] trading_history_allocation = new double[Convert.ToInt64(Weeks)][];
 
             double TurnOver = 0;
 
@@ -134,9 +136,10 @@ namespace MLtrading
                 }
 
 
-                // double[] AllocationFI= PO.ETFs2Allocation(ETFs_FI, pro_FI);
+                double[] AllocationFI= PO.ETFs2Allocation(ETFs_FI, pro_FI);
 
-                Console.WriteLine("Long the following Fixed Income ETFs: ");
+                Console.WriteLine("Long the following ETFs: ");
+
                 for (int n = 0; n < ETFs_FI.Count; n++)
                 {
                     Console.WriteLine(ETFs_FI[n]);
@@ -202,9 +205,8 @@ namespace MLtrading
 					TurnOver += CaculateTurnOver(ETFs_holding_Equ, ETFs_Equ,0.16);
 				}
 
-                // double[] AllocationEqu = PO.ETFs2Allocation(ETFs_FI, pro_FI);
+                 double[] AllocationEqu = PO.ETFs2Allocation(ETFs_FI, pro_FI);
 
-                Console.WriteLine("Long the following Equity ETFs: ");
 				for (int n = 0; n < ETFs_Equ.Count; n++)
 				{
 					Console.WriteLine(ETFs_Equ[n]);
@@ -213,26 +215,80 @@ namespace MLtrading
 
                 //  Update Netvalue
 
-                //double[] allocations = new double[10];
+                double[] allocations = new double[10];
 
-                //for (int fi = 0; fi < 5; fi++)
+                for (int fi = 0; fi < 5; fi++)
+                {
+                    allocations[fi] = AllocationFI[fi] * 0.2;
+                }
+
+                for (int equ = 0; equ < 5; equ++)
+                {
+                    allocations[equ + 5] = AllocationEqu[equ] * 0.8;
+                }
+
+                foreach (var item in allocations)
+                {
+                    Console.WriteLine(item);
+                }
+
+                // double[] EqualAllo = { 0.04,0.04,0.04,0.04,0.04,0.16,0.16,0.16,0.16,0.16};
+
+                //double DrawDown;
+
+                //if (i == 0)
                 //{
-                //    allocations[fi] = AllocationFI[fi] * 0.2;
+                //    DrawDown = 0;     
+                //}
+                //else
+                //{
+                //    DrawDown = 1 - Hisc_netValue.Last() / Hisc_netValue.Max();
                 //}
 
-                //for (int equ = 0; equ < 5; equ++)
+
+                //double Position_ratio;
+
+                //if (DrawDown > 0.05)
                 //{
-                //    allocations[equ + 5] = AllocationEqu[equ] * 0.8;
+                //     Position_ratio = 0.8; 
+                //}
+                //else if (DrawDown > 0.07)
+                //{
+                //     Position_ratio = 0.6;
+                //}
+                //else if (DrawDown > 0.1)
+                //{
+                //     Position_ratio = 0.5; 
+                //}
+                //else
+                //{
+                //     Position_ratio = 1;
                 //}
 
-                //foreach (var item in allocations)
+                //double[] ALLOCATION = new double[10];
+
+                //for (int allo = 0; allo < 10; allo++)
                 //{
-                //    Console.WriteLine(item);
+                //    ALLOCATION[allo] = Position_ratio * EqualAllo[allo];
                 //}
 
-                double[] EqualAllo = { 0.04,0.04,0.04,0.04,0.04,0.16,0.16,0.16,0.16,0.16};
-                
-                Hisc_netValue.Add(Mybacktest.Rebalance(Today, Blend_ETFs.ToArray(), EqualAllo));
+                //Console.WriteLine("Current Drawdown is {0}", DrawDown );
+                //Console.WriteLine("Position is {0}", ALLOCATION.Sum());
+
+                trading_history_ETF[i] = new string[10];
+                string[] ETFs = new string[10];
+
+                for (int item = 0; item < 10; item++)
+                {
+                    ETFs[item] = Blend_ETFs[item];
+                } 
+
+                trading_history_ETF[i] = ETFs;
+
+                trading_history_allocation[i] = new double[10];
+                trading_history_allocation[i] = allocations;
+
+                Hisc_netValue.Add(Mybacktest.Rebalance(Today, ETFs, allocations));
             
             }
 
@@ -271,6 +327,8 @@ namespace MLtrading
             BTmetrics[2] = Statistics.StandardDeviation(StrategyReturn)*Math.Sqrt(50);
             BTmetrics[3] = TurnOver;
 
+            SaveArrayAsCSV_(trading_history_ETF, "TradingHistoryETF.csv");
+            SaveArrayAsCSV_(trading_history_allocation, "TradingHistoryAllocation.csv");
             SaveArrayAsCSV(BTmetrics,"BacktestMetrics.csv");
             SaveArrayAsCSV(StrategyNetValue, "Net_value.CSV");
 
@@ -359,6 +417,20 @@ namespace MLtrading
             return hold;
 		}
 
+        public static void SaveArrayAsCSV_<T>(T[][] jaggedArrayToSave, string fileName)
+        {
+            using (StreamWriter file = new StreamWriter(fileName))
+            {
+                foreach (T[] array in jaggedArrayToSave)
+                {
+                    foreach (T item in array)
+                    {
+                        file.Write(item + ",");
+                    }
+                    file.Write(Environment.NewLine);
+                }
+            }
+        }
 
 
     }
