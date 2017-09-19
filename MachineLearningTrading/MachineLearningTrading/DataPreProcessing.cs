@@ -57,6 +57,7 @@ namespace Preprocessing
                     var features = MultiLagFeaturesEng(Price2Return(raw_y)
                                                         .Chunk(7)
                                                         .Select(x => x.Value.Sum())).DropSparseRows();
+                                                                                           
                     // Generate the features which are going to be used for prediction 
                     var pred_features = Features_engineering_pred(Price2Return(raw_y)
                                                         .Chunk(7)
@@ -326,6 +327,12 @@ namespace Preprocessing
             return keys;
         }
 
+        //public static Frame<DateTime,string> StructuredDataFE(Series<DateTime, double> input)
+        //{
+            
+
+
+        //}
 
         public static Frame<DateTime, string> Features_engineering(Series<DateTime, double> input, int shiftn)
         {   
@@ -354,6 +361,8 @@ namespace Preprocessing
 			var K5 = data.Window(5).Select(x => K_func(x, 5));
 			var K10 = data.Window(10).Select(x => K_func(x, 10));
 
+            string Returncolumn = "Return" + Convert.ToString(shiftn);
+
             string MA3column = "MA3" + Convert.ToString(shiftn);
             string MA5column = "MA5" + Convert.ToString(shiftn);
             string MA10column = "MA10" + Convert.ToString(shiftn);
@@ -375,6 +384,7 @@ namespace Preprocessing
             string K10column = "K10" + Convert.ToString(shiftn);
 
             var Features = new FrameBuilder.Columns<DateTime, string>{
+                { Returncolumn, data},
                 { MA3column  , MA3  },
                 { MA5column  , MA5  },
                 { MA10column , MA10 },
@@ -426,6 +436,8 @@ namespace Preprocessing
             var K5 = data.Window(5).Select(x => K_func(x, 5));
             var K10 = data.Window(10).Select(x => K_func(x, 10));
 
+            string Returncolumn = "Return" + Convert.ToString(shiftn);
+
             string MA3column = "MA3" + Convert.ToString(shiftn);
             string MA5column = "MA5" + Convert.ToString(shiftn);
             string MA10column = "MA10" + Convert.ToString(shiftn);
@@ -447,6 +459,7 @@ namespace Preprocessing
             string K10column = "K10" + Convert.ToString(shiftn);
 
             var Features = new FrameBuilder.Columns<DateTime, string>{
+                { Returncolumn, data },
                 { MA3column  , MA3  },
                 { MA5column  , MA5  },
                 { MA10column , MA10 },
