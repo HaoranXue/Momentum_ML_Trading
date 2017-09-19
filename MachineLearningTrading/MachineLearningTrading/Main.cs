@@ -327,7 +327,7 @@ namespace MLtrading
             BTmetrics[2] = Statistics.StandardDeviation(StrategyReturn)*Math.Sqrt(50);
             BTmetrics[3] = TurnOver;
 
-            SaveArrayAsCSV_(trading_history_ETF, "TradingHistoryETF.csv");
+            SaveArrayAsCSV_<string>(trading_history_ETF, "TradingHistoryETF.csv");
             SaveArrayAsCSV_(trading_history_allocation, "TradingHistoryAllocation.csv");
             SaveArrayAsCSV(BTmetrics,"BacktestMetrics.csv");
             SaveArrayAsCSV(StrategyNetValue, "Net_value.CSV");
