@@ -1,11 +1,11 @@
 ﻿<Properties StartupConfiguration="{496C8CC4-DF3D-4DB6-ADB8-8ED44399B955}|Default" NuGet.AddPackagesDialog.IncludePrerelease="True">
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../../../../../Library/Frameworks/Mono.framework/Versions/5.2.0/lib/mono/msbuild/15.0/bin/Microsoft.Common.CurrentVersion.targets">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/portfolio_optimization.cs">
     <Files>
-      <File FileName="MachineLearningTrading/Main.cs" Line="23" Column="4" />
+      <File FileName="MachineLearningTrading/Main.cs" Line="22" Column="148" />
       <File FileName="MachineLearningTrading/machinelearning.cs" Line="104" Column="28" />
-      <File FileName="MachineLearningTrading/BacktestSystem.cs" Line="60" Column="29" />
-      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="510" Column="12" />
-      <File FileName="MachineLearningTrading/portfolio_optimization.cs" Line="81" Column="15" />
+      <File FileName="MachineLearningTrading/BacktestSystem.cs" Line="14" Column="1" />
+      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="435" Column="24" />
+      <File FileName="MachineLearningTrading/portfolio_optimization.cs" Line="39" Column="13" />
       <File FileName="MachineLearningTrading/packages.config" Line="1" Column="1" />
       <File FileName="../../../../../../Library/Frameworks/Mono.framework/Versions/5.2.0/lib/mono/msbuild/15.0/bin/Microsoft.Common.CurrentVersion.targets" Line="2003" Column="60" />
     </Files>

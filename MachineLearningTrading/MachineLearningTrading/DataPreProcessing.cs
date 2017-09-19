@@ -54,14 +54,27 @@ namespace Preprocessing
                 {   // Get the historical time_series of ith Index
                     var raw_y = Adj_Index_data[i].Between(startDate, endDate);
                     // Generate trainning features for Index time-series data and drops sparserows
-                    var features = MultiLagFeaturesEng(Price2Return(raw_y)
+                    var return_features = MultiLagFeaturesEng(Price2Return(raw_y)
                                                         .Chunk(7)
                                                         .Select(x => x.Value.Sum())).DropSparseRows();
-                                                                                           
+                    
+                    var price_features = PriceDataFE(raw_y
+                                                     .Chunk(7)
+                                                     .Select(x => x.Value.LastValue())).DropSparseRows();
+
+                    var features = return_features.Join(price_features, JoinKind.Inner);
+
                     // Generate the features which are going to be used for prediction 
-                    var pred_features = Features_engineering_pred(Price2Return(raw_y)
+                    var return_pred_features = Features_engineering_pred(Price2Return(raw_y)
                                                         .Chunk(7)
-                                                        .Select(x => x.Value.Sum()));      
+                                                        .Select(x => x.Value.Sum()));
+
+                    var price_pred_features = PriceDataFE_pred(raw_y.Chunk(7).Select(x => x.Value.LastValue()));
+
+                    double[] pred_features = new double[return_pred_features.Length+price_pred_features.Length];
+                    Array.Copy(return_pred_features, pred_features, return_pred_features.Length);
+                    Array.Copy(price_pred_features, 0 ,pred_features, return_pred_features.Length, price_pred_features.Length);
+
                     // Get the etf Return 
                     var raw_etf = Price2Return(Adj_ETF_data[i].Between(startDate,endDate))
                                                           .Chunk(7)
@@ -327,12 +340,121 @@ namespace Preprocessing
             return keys;
         }
 
-        //public static Frame<DateTime,string> StructuredDataFE(Series<DateTime, double> input)
-        //{
+        public static Frame<DateTime,string> PriceDataFE(Series<DateTime, double> input)
+        {
+            int shiftn = 1;    
             
+			var data = input.Shift(shiftn);
 
+			var MA3 = data.Window(3).Select(x => x.Value.Mean());
+			var MA5 = data.Window(5).Select(x => x.Value.Mean());
+			var MA10 = data.Window(10).Select(x => x.Value.Mean());
 
-        //}
+            var dataMA3 = (data / MA3).Select(x => Math.Log(x.Value));
+            var dataMA5 = (data / MA5).Select(x => Math.Log(x.Value));
+            var dataMA10 = (data / MA10).Select(x => Math.Log(x.Value));
+
+			var MA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0));
+			var MA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
+			var MA5MA10 = (MA5 - MA10).Select(x => x.Value.CompareTo(0));
+
+            var MMP3 = data.Window(3).Select(x => Math.Log( x.Value.Max() / x.Value.Min()));
+            var MMP5 = data.Window(5).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
+            var MMP10 = data.Window(10).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
+
+            string dataMA3column = "PriceMA3" +Convert.ToString(shiftn);
+            string dataMA5column = "PriceMA5" + Convert.ToString(shiftn);
+            string dataMA10column = "PriceMA10" + Convert.ToString(shiftn);
+
+            string MA3MA5column = "MA3MA5PRICE" + Convert.ToString(shiftn);
+            string MA3MA10column = "MA3MA10PRICE" + Convert.ToString(shiftn);
+            string MA5MA10column = "MA5MA10PRICE" + Convert.ToString(shiftn);
+
+            string MMP3column = "MMP3" + Convert.ToString(shiftn);
+            string MMP5column = "MMP5" + Convert.ToString(shiftn);
+            string MMP10column = "MMP10" + Convert.ToString(shiftn);
+
+			var Features = new FrameBuilder.Columns<DateTime, string>{
+                {dataMA3column, dataMA3},
+                {dataMA5column, dataMA5},
+                {dataMA10column, dataMA10},
+                {MA3MA5column,MA3MA5},
+                {MA3MA10column,MA3MA10},
+                {MA5MA10column,MA5MA10},
+                {MMP3column, MMP3},
+                {MMP5column, MMP5},
+                {MMP10column, MMP10}
+			}.Frame;
+
+			return Features;
+
+		}
+
+        public static double[] PriceDataFE_pred(Series<DateTime, double> input)
+		{
+			int shiftn = 0;
+
+			var data = input.Shift(shiftn);
+
+			var MA3 = data.Window(3).Select(x => x.Value.Mean());
+			var MA5 = data.Window(5).Select(x => x.Value.Mean());
+			var MA10 = data.Window(10).Select(x => x.Value.Mean());
+
+			var dataMA3 = (data / MA3).Select(x => Math.Log(x.Value));
+			var dataMA5 = (data / MA5).Select(x => Math.Log(x.Value));
+			var dataMA10 = (data / MA10).Select(x => Math.Log(x.Value));
+
+			var MA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0));
+			var MA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
+			var MA5MA10 = (MA5 - MA10).Select(x => x.Value.CompareTo(0));
+
+			var MMP3 = data.Window(3).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
+			var MMP5 = data.Window(5).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
+			var MMP10 = data.Window(10).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
+
+			string dataMA3column = "PriceMA3" + Convert.ToString(shiftn);
+			string dataMA5column = "PriceMA5" + Convert.ToString(shiftn);
+			string dataMA10column = "PriceMA10" + Convert.ToString(shiftn);
+
+			string MA3MA5column = "MA3MA5PRICE" + Convert.ToString(shiftn);
+			string MA3MA10column = "MA3MA10PRICE" + Convert.ToString(shiftn);
+			string MA5MA10column = "MA5MA10PRICE" + Convert.ToString(shiftn);
+
+			string MMP3column = "MMP3" + Convert.ToString(shiftn);
+			string MMP5column = "MMP5" + Convert.ToString(shiftn);
+			string MMP10column = "MMP10" + Convert.ToString(shiftn);
+
+			var Features = new FrameBuilder.Columns<DateTime, string>{
+				{dataMA3column, dataMA3},
+				{dataMA5column, dataMA5},
+				{dataMA10column, dataMA10},
+				{MA3MA5column,MA3MA5},
+				{MA3MA10column,MA3MA10},
+				{MA5MA10column,MA5MA10},
+				{MMP3column, MMP3},
+				{MMP5column, MMP5},
+				{MMP10column, MMP10}
+			}.Frame;
+
+			var row_length = Features.RowCount;
+			var col_length = Features.ColumnCount;
+
+			var delay_1 = Features.GetRowAt<double>(row_length - 1);
+
+			double[] features_pred = new double[col_length];
+
+			for (int i = 0; i < col_length; i++)
+			{
+				features_pred[i] = delay_1.GetAt(i);
+			}
+
+			// var Features_pred = delay_1.Merge(delay_2).Merge(delay_3);
+
+			// Features_pred.Print();
+			return features_pred;
+		  
+		}
+
 
         public static Frame<DateTime, string> Features_engineering(Series<DateTime, double> input, int shiftn)
         {   
