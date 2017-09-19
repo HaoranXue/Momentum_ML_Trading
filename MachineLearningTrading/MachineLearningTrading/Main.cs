@@ -101,6 +101,7 @@ namespace MLtrading
                     var prediction = Learning.Fit(pred_Features);
 
                     predictions_FI[j] = prediction;
+                
                 }
 
                 // Get the minimum scores of top 5 ETF 

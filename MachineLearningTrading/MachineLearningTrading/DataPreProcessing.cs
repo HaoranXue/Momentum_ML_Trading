@@ -341,9 +341,15 @@ namespace Preprocessing
 
             var data = input.Shift(shiftn);
 
+            var data2 = data.Select(x => Math.Pow(x.Value, 2));
+
             var MA3 = data.Window(3).Select(x => x.Value.Mean());
             var MA5 = data.Window(5).Select(x => x.Value.Mean());
             var MA10 = data.Window(10).Select(x => x.Value.Mean());
+
+            var diffdataMA3 = (data - MA3).Select(x => x.Value.CompareTo(0));
+            var diffdataMA5 = (data - MA5).Select(x => x.Value.CompareTo(0));
+            var diffdataMA10 = (data - MA10).Select(x => x.Value.CompareTo(0));
 
 			var diffMA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0)); 
             var diffMA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
@@ -362,6 +368,7 @@ namespace Preprocessing
 			var K10 = data.Window(10).Select(x => K_func(x, 10));
 
             string Returncolumn = "Return" + Convert.ToString(shiftn);
+            string Powercolumn = "Power" + Convert.ToString(shiftn);
 
             string MA3column = "MA3" + Convert.ToString(shiftn);
             string MA5column = "MA5" + Convert.ToString(shiftn);
@@ -370,6 +377,10 @@ namespace Preprocessing
             string SD3column = "SD3" + Convert.ToString(shiftn);
 			string SD5column = "SD5" + Convert.ToString(shiftn);
 			string SD10column = "SD10" + Convert.ToString(shiftn);
+
+            string CompareDataColumn1 = "dataMA3" + Convert.ToString(shiftn);
+            string CompareDataColumn2 = "dataMA5" + Convert.ToString(shiftn);
+            string CompareDataColumn3 = "dataMA10" + Convert.ToString(shiftn);
 
             string Compare1column = "MA3MA5" +Convert.ToString(shiftn);
 			string Compare2column = "MA3MA10" + Convert.ToString(shiftn);
@@ -385,12 +396,16 @@ namespace Preprocessing
 
             var Features = new FrameBuilder.Columns<DateTime, string>{
                 { Returncolumn, data},
+                { Powercolumn, data2 },
                 { MA3column  , MA3  },
                 { MA5column  , MA5  },
                 { MA10column , MA10 },
                 {Compare1column, diffMA3MA5},
                 {Compare2column,diffMA3MA10},
                 {Compare3column,diffMA5MA10},
+                {CompareDataColumn1, diffdataMA3},
+                {CompareDataColumn2, diffdataMA5},
+                {CompareDataColumn3, diffdataMA10},
                 {SD3column,SD3},
                 {SD5column,SD5},
                 {SD10column,SD10},
@@ -414,69 +429,85 @@ namespace Preprocessing
             // Features engineering function for generating prediction input
 
             int shiftn = 0;
-            var data = input.Shift(shiftn);
 
-            var MA3 = data.Window(3).Select(x => x.Value.Mean());
-            var MA5 = data.Window(5).Select(x => x.Value.Mean());
-            var MA10 = data.Window(10).Select(x => x.Value.Mean());
+			var data = input.Shift(shiftn);
 
-            var diffMA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0));
-            var diffMA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
-            var diffMA5MA10 = (MA5 - MA10).Select(x => x.Value.CompareTo(0));
+			var data2 = data.Select(x => Math.Pow(x.Value, 2));
 
-            var SD3 = data.Window(3).Select(x => x.Value.StdDev());
-            var SD5 = data.Window(5).Select(x => x.Value.StdDev());
-            var SD10 = data.Window(10).Select(x => x.Value.StdDev());
+			var MA3 = data.Window(3).Select(x => x.Value.Mean());
+			var MA5 = data.Window(5).Select(x => x.Value.Mean());
+			var MA10 = data.Window(10).Select(x => x.Value.Mean());
 
-            var RSI3 = data.Window(3).Select(x => RSI_func(x, 3));
-            var RSI5 = data.Window(5).Select(x => RSI_func(x, 5));
-            var RSI10 = data.Window(10).Select(x => RSI_func(x, 10));
+			var diffdataMA3 = (data - MA3).Select(x => x.Value.CompareTo(0));
+			var diffdataMA5 = (data - MA5).Select(x => x.Value.CompareTo(0));
+			var diffdataMA10 = (data - MA10).Select(x => x.Value.CompareTo(0));
 
-            var K3 = data.Window(3).Select(x => K_func(x, 3));
-            var K5 = data.Window(5).Select(x => K_func(x, 5));
-            var K10 = data.Window(10).Select(x => K_func(x, 10));
+			var diffMA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0));
+			var diffMA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
+			var diffMA5MA10 = (MA5 - MA10).Select(x => x.Value.CompareTo(0));
 
-            string Returncolumn = "Return" + Convert.ToString(shiftn);
+			var SD3 = data.Window(3).Select(x => x.Value.StdDev());
+			var SD5 = data.Window(5).Select(x => x.Value.StdDev());
+			var SD10 = data.Window(10).Select(x => x.Value.StdDev());
 
-            string MA3column = "MA3" + Convert.ToString(shiftn);
-            string MA5column = "MA5" + Convert.ToString(shiftn);
-            string MA10column = "MA10" + Convert.ToString(shiftn);
+			var RSI3 = data.Window(3).Select(x => RSI_func(x, 3));
+			var RSI5 = data.Window(5).Select(x => RSI_func(x, 5));
+			var RSI10 = data.Window(10).Select(x => RSI_func(x, 10));
 
-            string SD3column = "SD3" + Convert.ToString(shiftn);
-            string SD5column = "SD5" + Convert.ToString(shiftn);
-            string SD10column = "SD10" + Convert.ToString(shiftn);
+			var K3 = data.Window(3).Select(x => K_func(x, 3));
+			var K5 = data.Window(5).Select(x => K_func(x, 5));
+			var K10 = data.Window(10).Select(x => K_func(x, 10));
 
-            string Compare1column = "MA3MA5" + Convert.ToString(shiftn);
-            string Compare2column = "MA3MA10" + Convert.ToString(shiftn);
-            string Compare3column = "MA5MA10" + Convert.ToString(shiftn);
+			string Returncolumn = "Return" + Convert.ToString(shiftn);
+			string Powercolumn = "Power" + Convert.ToString(shiftn);
 
-            string RSI3column = "RSI3" + Convert.ToString(shiftn);
-            string RSI5column = "RSI5" + Convert.ToString(shiftn);
-            string RSI10column = "RSI10" + Convert.ToString(shiftn);
+			string MA3column = "MA3" + Convert.ToString(shiftn);
+			string MA5column = "MA5" + Convert.ToString(shiftn);
+			string MA10column = "MA10" + Convert.ToString(shiftn);
 
-            string K3column = "K3" + Convert.ToString(shiftn);
-            string K5column = "K5" + Convert.ToString(shiftn);
-            string K10column = "K10" + Convert.ToString(shiftn);
+			string SD3column = "SD3" + Convert.ToString(shiftn);
+			string SD5column = "SD5" + Convert.ToString(shiftn);
+			string SD10column = "SD10" + Convert.ToString(shiftn);
 
-            var Features = new FrameBuilder.Columns<DateTime, string>{
-                { Returncolumn, data },
-                { MA3column  , MA3  },
-                { MA5column  , MA5  },
-                { MA10column , MA10 },
-                {Compare1column, diffMA3MA5},
-                {Compare2column,diffMA3MA10},
-                {Compare3column,diffMA5MA10},
-                {SD3column,SD3},
-                {SD5column,SD5},
-                {SD10column,SD10},
-                {RSI3column, RSI3},
-                {RSI5column, RSI5},
-                {RSI10column, RSI10},
-                {K3column,K3},
-                {K5column,K5},
-                {K10column,K10}
+			string CompareDataColumn1 = "dataMA3" + Convert.ToString(shiftn);
+			string CompareDataColumn2 = "dataMA5" + Convert.ToString(shiftn);
+			string CompareDataColumn3 = "dataMA10" + Convert.ToString(shiftn);
 
-            }.Frame;
+			string Compare1column = "MA3MA5" + Convert.ToString(shiftn);
+			string Compare2column = "MA3MA10" + Convert.ToString(shiftn);
+			string Compare3column = "MA5MA10" + Convert.ToString(shiftn);
+
+			string RSI3column = "RSI3" + Convert.ToString(shiftn);
+			string RSI5column = "RSI5" + Convert.ToString(shiftn);
+			string RSI10column = "RSI10" + Convert.ToString(shiftn);
+
+			string K3column = "K3" + Convert.ToString(shiftn);
+			string K5column = "K5" + Convert.ToString(shiftn);
+			string K10column = "K10" + Convert.ToString(shiftn);
+
+			var Features = new FrameBuilder.Columns<DateTime, string>{
+				{ Returncolumn, data},
+				{ Powercolumn, data2 },
+				{ MA3column  , MA3  },
+				{ MA5column  , MA5  },
+				{ MA10column , MA10 },
+				{Compare1column, diffMA3MA5},
+				{Compare2column,diffMA3MA10},
+				{Compare3column,diffMA5MA10},
+				{CompareDataColumn1, diffdataMA3},
+				{CompareDataColumn2, diffdataMA5},
+				{CompareDataColumn3, diffdataMA10},
+				{SD3column,SD3},
+				{SD5column,SD5},
+				{SD10column,SD10},
+				{RSI3column, RSI3},
+				{RSI5column, RSI5},
+				{RSI10column, RSI10},
+				{K3column,K3},
+				{K5column,K5},
+				{K10column,K10}
+
+			}.Frame;
 
             var row_length = Features.RowCount;
             var col_length = Features.ColumnCount;
