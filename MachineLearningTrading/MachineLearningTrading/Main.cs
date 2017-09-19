@@ -17,9 +17,11 @@ namespace MLtrading
     {
         public static void Main(string[] args)
         {
-			Directory.SetCurrentDirectory("C:/Users/Jeremy/Documents/GitHub/Momentum_ML_Trading_Vega/MachineLearningTrading/MachineLearningTrading");
+			// Directory.SetCurrentDirectory("C:/Users/Jeremy/Documents/GitHub/Momentum_ML_Trading_Vega/MachineLearningTrading/MachineLearningTrading");
 
-			Console.WriteLine("Enter 0 for backtest the strategy, enter 1 for trading via the strategy");
+            Directory.SetCurrentDirectory("/Users/xuehaoran/Documents/GitHub/Momentum_ML_Trading_Vega/MachineLearningTrading/MachineLearningTrading");
+			
+            Console.WriteLine("Enter 0 for backtest the strategy, enter 1 for trading via the strategy");
             string Order = Console.ReadLine();
 
             if (Order =="0")
