@@ -121,7 +121,7 @@ namespace MLtrading
                     }
                 }
 
-                // Cacualte the Unitility and decisde if we should trade this week
+                // Cacualte the Unitility and decide if we should trade this week
                 if (i ==0)
                 {
                     ETFs_holding_FI = ETFs_FI;
@@ -134,7 +134,7 @@ namespace MLtrading
 
                     double trade_diff= long_pred.Sum() - holding_pred.Sum();
 
-                    if (trade_diff < 0.10)
+                    if (trade_diff < 0.05)
                     {
                         ETFs_FI = ETFs_holding_FI;
                     }
@@ -145,8 +145,6 @@ namespace MLtrading
 
                     TurnOver += CaculateTurnOver(ETFs_holding_FI, ETFs_FI,0.04);
                 }
-
-                // Portfolio Optimization
 
                 Console.WriteLine("Long the following ETFs: ");
 
@@ -236,8 +234,6 @@ namespace MLtrading
                 {
                     allocations[equ + 5] = AllocationEqu[equ] * 0.8;
                 }
-
-                // double[] EqualAllo = { 0.04,0.04,0.04,0.04,0.04,0.16,0.16,0.16,0.16,0.16};
 
                 double DrawDown;
 
