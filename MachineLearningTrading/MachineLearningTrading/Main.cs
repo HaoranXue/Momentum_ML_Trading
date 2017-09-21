@@ -17,9 +17,7 @@ namespace MLtrading
     {
         public static void Main(string[] args)
         {
-			// Directory.SetCurrentDirectory("C:/Users/Jeremy/Documents/GitHub/Momentum_ML_Trading_Vega/MachineLearningTrading/MachineLearningTrading");
-
-            Directory.SetCurrentDirectory("/Users/xuehaoran/Documents/GitHub/Momentum_ML_Trading_Vega/MachineLearningTrading/MachineLearningTrading");
+			Directory.SetCurrentDirectory("C:/Users/Jeremy/Documents/GitHub/Momentum_ML_Trading_Vega/MachineLearningTrading/MachineLearningTrading");
 			
             Console.WriteLine("Enter 0 for backtest the strategy, enter 1 for trading via the strategy");
             string Order = Console.ReadLine();
@@ -51,7 +49,10 @@ namespace MLtrading
 			// Data Preprocessing
 
             var Mybacktest = new Backtest();
+            var Mybacktest_adj = new Backtest();
             Mybacktest.Init();
+            Mybacktest_adj.Init();
+
             // Set list to store data
             List<double> Hisc_netValue = new List<double>();
             List<double> Adj_netValue = new List<double>();
@@ -269,6 +270,7 @@ namespace MLtrading
                      Position_ratio = 1;
                 }
 
+                Console.WriteLine("ADJ position is {0}", Position_ratio);
                 double[] ALLOCATION = new double[10];
 
                 for (int allo = 0; allo < 10; allo++)
@@ -280,7 +282,15 @@ namespace MLtrading
                 //Console.WriteLine("Position is {0}", ALLOCATION.Sum());
 
                 trading_history_ETF[i] = new string[10];
-                trading_history_ETF[i] = Blend_ETFs.ToArray();
+
+                string[] ETFs = new string[10];
+
+                for (int etf = 0; etf < 10; etf++)
+                {
+                    ETFs[etf] = Blend_ETFs[etf];
+                }
+
+                trading_history_ETF[i] = ETFs;
 
                 trading_history_allocation[i] = new double[10];
                 trading_history_allocation[i] = allocations;
@@ -289,8 +299,8 @@ namespace MLtrading
                 ADJtrading_history_allocation[i] = ALLOCATION;
 
 
-                Hisc_netValue.Add(Mybacktest.Rebalance(Today, Blend_ETFs.ToArray(), allocations));
-                Adj_netValue.Add(Mybacktest.Rebalance(Today, Blend_ETFs.ToArray(), ALLOCATION));
+                Hisc_netValue.Add(Mybacktest.Rebalance(Today, ETFs, allocations));
+                Adj_netValue.Add(Mybacktest_adj.Rebalance(Today, ETFs, ALLOCATION));
             }
 
 
