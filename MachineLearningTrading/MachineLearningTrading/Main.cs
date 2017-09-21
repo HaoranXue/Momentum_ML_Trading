@@ -249,7 +249,7 @@ namespace MLtrading
 
                 double Position_ratio;
 
-                if (DrawDown > 0.05)
+                if (DrawDown > 0.03)
                 {
                      Position_ratio = 0.9; 
                 }
