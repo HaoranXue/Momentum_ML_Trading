@@ -222,7 +222,7 @@ namespace Preprocessing
             
             var GBPEUR = FX.Rows.Select(x =>
                                         x.Value.GetAs<double>("GBPUSD Curncy") /
-                                        x.Value.GetAs<double>("EURUSD"));
+                                        x.Value.GetAs<double>("EURUSD Curncy"));
           
             var Index_meta = Frame.ReadCsv("data/Index Metadata.csv");
 
@@ -234,12 +234,16 @@ namespace Preprocessing
                 var CRNCY = meta.Rows.Select(x => x.Value.GetAs<string>("CRNCY")).GetAt(0);
 
                 if(CRNCY == "USD")
-                {   
-                    List_data.Add(data[i] / GBPUSD); 
+                {
+                    var FirstKey = data[i].FirstKey();
+                    var LastKey = data[i].LastKey();
+                    List_data.Add(data[i] / GBPUSD.Between(FirstKey, LastKey)); 
                 }
                 else if(CRNCY == "EUR")
                 {
-                    List_data.Add(data[i] / GBPEUR);
+                    var FirstKey = data[i].FirstKey();
+                    var LastKey = data[i].LastKey();
+                    List_data.Add(data[i] / GBPEUR.Between(FirstKey,LastKey));
                 }
                 else
                 {
@@ -264,7 +268,7 @@ namespace Preprocessing
 
 			var GBPEUR = FX.Rows.Select(x =>
 										x.Value.GetAs<double>("GBPUSD Curncy") /
-										x.Value.GetAs<double>("EURUSD"));
+										x.Value.GetAs<double>("EURUSD Curncy"));
 
 			var ETF_meta = Frame.ReadCsv("data/ETF Metadata.csv");
 
@@ -276,12 +280,16 @@ namespace Preprocessing
 				var CRNCY = meta.Rows.Select(x => x.Value.GetAs<string>("CRNCY")).GetAt(0);
 
 				if (CRNCY == "USD")
-				{
-					List_data.Add(data[i] / GBPUSD);
+                {
+                    var FirstKey = data[i].FirstKey();
+                    var LastKey = data[i].LastKey();
+                    List_data.Add(data[i] / GBPUSD.Between(FirstKey,LastKey));
 				}
 				else if (CRNCY == "EUR")
 				{
-					List_data.Add(data[i] / GBPEUR);
+                    var FirstKey = data[i].FirstKey();
+                    var LastKey = data[i].LastKey();
+                    List_data.Add(data[i] / GBPEUR.Between(FirstKey,LastKey));
 				}
 				else
 				{

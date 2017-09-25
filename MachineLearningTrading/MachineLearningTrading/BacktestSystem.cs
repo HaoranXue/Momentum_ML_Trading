@@ -142,6 +142,9 @@ namespace BacktestSystem
 
         public static List<Series<DateTime, double>> Adjust_etf_fx(List<Series<DateTime, double>> data, string[] namelist)
         {
+
+            //Adjust ETF return to GBP based
+
             var FX = Frame.ReadCsv("data/FX Returns.csv").IndexRows<DateTime>("Date").FillMissing(Direction.Forward); ;
 
             var GBPUSD = FX.Rows.Select(x =>
@@ -149,7 +152,7 @@ namespace BacktestSystem
 
             var GBPEUR = FX.Rows.Select(x =>
                                         x.Value.GetAs<double>("GBPUSD Curncy") /
-                                        x.Value.GetAs<double>("EURUSD"));
+                                        x.Value.GetAs<double>("EURUSD Curncy"));
 
             var ETF_meta = Frame.ReadCsv("data/ETF Metadata.csv");
 
@@ -162,11 +165,15 @@ namespace BacktestSystem
 
                 if (CRNCY == "USD")
                 {
-                    List_data.Add(data[i] / GBPUSD);
+                    var FirstKey = data[i].FirstKey();
+                    var LastKey = data[i].LastKey();
+                    List_data.Add(data[i] / GBPUSD.Between(FirstKey, LastKey));
                 }
                 else if (CRNCY == "EUR")
                 {
-                    List_data.Add(data[i] / GBPEUR);
+                    var FirstKey = data[i].FirstKey();
+                    var LastKey = data[i].LastKey();
+                    List_data.Add(data[i] / GBPEUR.Between(FirstKey, LastKey));
                 }
                 else
                 {

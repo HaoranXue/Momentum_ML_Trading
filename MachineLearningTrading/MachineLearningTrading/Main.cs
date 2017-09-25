@@ -134,7 +134,7 @@ namespace MLtrading
 
                     double trade_diff= long_pred.Sum() - holding_pred.Sum();
 
-                    if (trade_diff < 0.05)
+                    if (trade_diff < 0.03)
                     {
                         ETFs_FI = ETFs_holding_FI;
                     }

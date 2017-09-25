@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BacktestSystem.cs" />
+    <Compile Include="BidAskBT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataPreProcessing.cs" />
     <Compile Include="Main.cs" />
@@ -167,8 +168,6 @@
     <None Include="data\Index Metadata.csv" />
     <None Include="data\Index Returns.csv" />
     <None Include="data\Mapping_Table.csv" />
-    <None Include="data\Market Metadata.csv" />
-    <None Include="data\Market data Prices.csv" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
