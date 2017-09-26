@@ -159,7 +159,6 @@ namespace MLtrading
 
                 for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
 				{
-
                     var y = pro_Equ.Target_List[j];
 
 					var fy = new FrameBuilder.Columns<DateTime, string>{
