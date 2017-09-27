@@ -530,7 +530,7 @@ namespace MLtrading
 
 			for (int etf = 0; etf < ETFs.Length; etf++)
 			{
-				spread[etf] = BidAskSpread.GetRow<double>(ETFs[etf]).Get("mean");
+				spread[etf] = BidAskSpread.GetRow<double>(ETFs[etf]).Get("Mean");
 
 			}
 
