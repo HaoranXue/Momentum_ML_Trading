@@ -122,6 +122,10 @@ namespace MLtrading
                 }
 
                 // Cacualte the Unitility and decide if we should trade this week
+
+                double[] FixedIncomeSpread = new double[5];
+                FixedIncomeSpread = GetBidAskSpread(ETFs_FI.ToArray());
+
                 if (i ==0)
                 {
                     ETFs_holding_FI = ETFs_FI;
@@ -142,8 +146,24 @@ namespace MLtrading
                     {
                         ETFs_holding_FI = ETFs_FI;
                     }
+                    // Caculate Bid Ask Spread 
 
-                    TurnOver += CaculateTurnOver(ETFs_holding_FI, ETFs_FI,0.04);
+                    for (int m = 0; m < 5; m++)
+                    {
+                        for (int n = 0; n < 5; n++)
+                        {
+                            if (ETFs_FI[m] == ETFs_holding_FI[n])
+                            {
+                                FixedIncomeSpread[m] = 0;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+
                 }
 
                 Console.WriteLine("Long the following ETFs: ");
@@ -159,6 +179,7 @@ namespace MLtrading
 
                 for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
 				{
+				
                     var y = pro_Equ.Target_List[j];
 
 					var fy = new FrameBuilder.Columns<DateTime, string>{
@@ -187,6 +208,9 @@ namespace MLtrading
 					}
 				}
 
+                double[] EquityBASpread = new double[5];
+                EquityBASpread = GetBidAskSpread(ETFs_Equ.ToArray());
+
 				if (i == 0)
 				{
 					ETFs_holding_Equ = ETFs_Equ;
@@ -208,7 +232,21 @@ namespace MLtrading
 						ETFs_holding_Equ = ETFs_Equ;
 					}
 
-					TurnOver += CaculateTurnOver(ETFs_holding_Equ, ETFs_Equ,0.16);
+					for (int m = 0; m < 5; m++)
+					{
+						for (int n = 0; n < 5; n++)
+						{
+                            if (ETFs_Equ[m] == ETFs_holding_Equ[n])
+							{
+                                EquityBASpread[m] = 0;
+							}
+							else
+							{
+								continue;
+							}
+						}
+					}
+
 				}
 
 				for (int n = 0; n < ETFs_Equ.Count; n++)
@@ -276,7 +314,6 @@ namespace MLtrading
                 //Console.WriteLine("Current Drawdown is {0}", DrawDown );
                 //Console.WriteLine("Position is {0}", ALLOCATION.Sum());
 
-                trading_history_ETF[i] = new string[10];
 
                 string[] ETFs = new string[10];
 
@@ -285,6 +322,7 @@ namespace MLtrading
                     ETFs[etf] = Blend_ETFs[etf];
                 }
 
+                trading_history_ETF[i] = new string[10];
                 trading_history_ETF[i] = ETFs;
 
                 trading_history_allocation[i] = new double[10];
@@ -293,9 +331,21 @@ namespace MLtrading
                 ADJtrading_history_allocation[i] = new double[10];
                 ADJtrading_history_allocation[i] = ALLOCATION;
 
+                double[] spread = new double[10];
 
-                Hisc_netValue.Add(Mybacktest.Rebalance(Today, ETFs, allocations));
-                Adj_netValue.Add(Mybacktest_adj.Rebalance(Today, ETFs, ALLOCATION));
+                Array.Copy(FixedIncomeSpread, spread, FixedIncomeSpread.Length);
+                Array.Copy(EquityBASpread, 0, spread, FixedIncomeSpread.Length, EquityBASpread.Length);
+
+                double weighted_spread = 0;
+
+                for (int spreadItem = 0; spreadItem < 10; spreadItem++)
+                {
+                    weighted_spread += allocations[spreadItem] * spread[spreadItem];
+                }
+
+
+                Hisc_netValue.Add(Mybacktest.Rebalance(Today, ETFs, allocations)*(1- weighted_spread));
+                // Adj_netValue.Add(Mybacktest_adj.Rebalance(Today, ETFs, ALLOCATION));
             }
 
 
@@ -327,55 +377,52 @@ namespace MLtrading
 			Console.WriteLine("Standard Deviation of This Strategy is: {0}",
 									  Statistics.StandardDeviation(StrategyReturn));
 
-            Console.WriteLine("Overall TurnOver: {0}", TurnOver);
-
-            double[] BTmetrics = new double[4];
+            double[] BTmetrics = new double[3];
             BTmetrics[0] = AnnualReturn;
             BTmetrics[1] = MaxDD;
             BTmetrics[2] = Statistics.StandardDeviation(StrategyReturn)*Math.Sqrt(50);
-            BTmetrics[3] = TurnOver;
 
             // Result analysis for AdjNetValue
 
-            var ADJStrategyNetValue = Adj_netValue.ToArray();
+   //         var ADJStrategyNetValue = Adj_netValue.ToArray();
 
-            double ADJMaxDD = 0;
+   //         double ADJMaxDD = 0;
 
-            for (int i = 1; i < ADJStrategyNetValue.Length; i++)
-			{
-				var MaxNetValue = ADJStrategyNetValue.Take(i).Max();
-				double drawdown = 1 - ADJStrategyNetValue[i] / MaxNetValue;
+   //         for (int i = 1; i < ADJStrategyNetValue.Length; i++)
+			//{
+			//	var MaxNetValue = ADJStrategyNetValue.Take(i).Max();
+			//	double drawdown = 1 - ADJStrategyNetValue[i] / MaxNetValue;
 
-                if (drawdown > ADJMaxDD)
-				{
-                    ADJMaxDD = drawdown;
-				}
-			}
-            Console.WriteLine("Maximum drawdown of ADJ Strategy is: {0}", ADJMaxDD);
+   //             if (drawdown > ADJMaxDD)
+			//	{
+   //                 ADJMaxDD = drawdown;
+			//	}
+			//}
+   //         Console.WriteLine("Maximum drawdown of ADJ Strategy is: {0}", ADJMaxDD);
 
-            var ADJAnnualReturn = Math.Log(ADJStrategyNetValue.Last()) /
-														(Convert.ToDouble(Weeks) / 50);
-            Console.WriteLine("Annual Return of ADJ Strategy is: {0}", ADJAnnualReturn);
+   //         var ADJAnnualReturn = Math.Log(ADJStrategyNetValue.Last()) /
+			//											(Convert.ToDouble(Weeks) / 50);
+   //         Console.WriteLine("Annual Return of ADJ Strategy is: {0}", ADJAnnualReturn);
 
-            var ADJStrategyReturn = NetValue2Return(ADJStrategyNetValue);
-            Console.WriteLine("Standard Deviation of This Strategy is: {0}",
-									  Statistics.StandardDeviation(ADJStrategyReturn));
+   //         var ADJStrategyReturn = NetValue2Return(ADJStrategyNetValue);
+   //         Console.WriteLine("Standard Deviation of This Strategy is: {0}",
+			//						  Statistics.StandardDeviation(ADJStrategyReturn));
 
-			double[] ADJBTmetrics = new double[4];
-            ADJBTmetrics[0] = ADJAnnualReturn;
-			ADJBTmetrics[1] = ADJMaxDD;
-            ADJBTmetrics[2] = Statistics.StandardDeviation(ADJStrategyReturn) * Math.Sqrt(50);
-			ADJBTmetrics[3] = TurnOver;
+			//double[] ADJBTmetrics = new double[4];
+   //         ADJBTmetrics[0] = ADJAnnualReturn;
+			//ADJBTmetrics[1] = ADJMaxDD;
+   //         ADJBTmetrics[2] = Statistics.StandardDeviation(ADJStrategyReturn) * Math.Sqrt(50);
+			//ADJBTmetrics[3] = TurnOver;
 
 
             // Output all results to CSV
             SaveArrayAsCSV_<string>(trading_history_ETF, "TradingHistoryETF.csv");
             SaveArrayAsCSV_(trading_history_allocation, "TradingHistoryAllocation.csv");
-            SaveArrayAsCSV_(ADJtrading_history_allocation,"ADJTradingHistoryAllocation.csv");
-			SaveArrayAsCSV(ADJBTmetrics, "ADJBacktestMetrics.csv");
+            // SaveArrayAsCSV_(ADJtrading_history_allocation,"ADJTradingHistoryAllocation.csv");
+			// SaveArrayAsCSV(ADJBTmetrics, "ADJBacktestMetrics.csv");
             SaveArrayAsCSV(BTmetrics,"BacktestMetrics.csv");
             SaveArrayAsCSV(StrategyNetValue, "Net_value.csv");
-            SaveArrayAsCSV(ADJStrategyNetValue,"AdjNetValue.csv");
+            // SaveArrayAsCSV(ADJStrategyNetValue,"AdjNetValue.csv");
 
         }
 
@@ -476,6 +523,21 @@ namespace MLtrading
             }
         }
 
+		public static double[] GetBidAskSpread(string[] ETFs)
+		{
+			double[] spread = new double[ETFs.Length];
+			Frame<string, string> BidAskSpread = Frame.ReadCsv("data/SpreadDistribution.csv").IndexRows<string>("ETFs");
 
-    }
+			for (int etf = 0; etf < ETFs.Length; etf++)
+			{
+				spread[etf] = BidAskSpread.GetRow<double>(ETFs[etf]).Get("mean");
+
+			}
+
+			return spread;
+
+		}
+
+
+	}
 }

@@ -11,14 +11,13 @@ namespace BacktestSystem
     public class Backtest
     {
         public double Net_value = new double();
+
         public Series<int, string> namelist = Frame.ReadCsv("data/Mapping_Table.csv")
             .GetColumn<string>("Best Tracking ETF");
         public List<Series<DateTime, double>> Hisc_data = new List<Series<DateTime, double>>();
         public List<string> ETF_holding = new List<string>();
         public List<double> ETF_bought_price = new List<double>();
         public List<double> Allocation = new List<double>();
-        public double cash = 1;
-        public double position = 0; 
 
         public void Init()
         {   
