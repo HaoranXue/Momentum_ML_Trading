@@ -141,29 +141,29 @@ namespace MLtrading
                     if (trade_diff < 0.03)
                     {
                         ETFs_FI = ETFs_holding_FI;
+                        FixedIncomeSpread = new double[] { 0, 0, 0, 0, 0 };
                     }
                     else
                     {
+                        
+						for (int m = 0; m < 5; m++)
+						{
+							for (int n = 0; n < 5; n++)
+							{
+								if (ETFs_FI[m] == ETFs_holding_FI[n])
+								{
+									FixedIncomeSpread[m] = 0;
+								}
+								else
+								{
+									continue;
+								}
+							}
+						}
+
                         ETFs_holding_FI = ETFs_FI;
                     }
                     // Caculate Bid Ask Spread 
-
-                    for (int m = 0; m < 5; m++)
-                    {
-                        for (int n = 0; n < 5; n++)
-                        {
-                            if (ETFs_FI[m] == ETFs_holding_FI[n])
-                            {
-                                FixedIncomeSpread[m] = 0;
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
-                    }
-
-
                 }
 
                 Console.WriteLine("Long the following ETFs: ");
@@ -226,25 +226,26 @@ namespace MLtrading
 					if (trade_diff < 0.1)
 					{
 						ETFs_Equ = ETFs_holding_Equ;
+                        EquityBASpread = new double[] { 0, 0, 0, 0, 0 };
 					}
 					else
 					{
-						ETFs_holding_Equ = ETFs_Equ;
-					}
-
-					for (int m = 0; m < 5; m++)
-					{
-						for (int n = 0; n < 5; n++)
+						for (int m = 0; m < 5; m++)
 						{
-                            if (ETFs_Equ[m] == ETFs_holding_Equ[n])
+							for (int n = 0; n < 5; n++)
 							{
-                                EquityBASpread[m] = 0;
-							}
-							else
-							{
-								continue;
+								if (ETFs_Equ[m] == ETFs_holding_Equ[n])
+								{
+									EquityBASpread[m] = 0;
+								}
+								else
+								{
+									continue;
+								}
 							}
 						}
+
+						ETFs_holding_Equ = ETFs_Equ;
 					}
 
 				}
