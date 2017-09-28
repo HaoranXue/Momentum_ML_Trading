@@ -148,7 +148,6 @@ namespace MLtrading
                     }
                     else
                     {
-                        
 						for (int m = 0; m < 5; m++)
 						{
 							for (int n = 0; n < 5; n++)
@@ -425,6 +424,8 @@ namespace MLtrading
 
             SaveArrayAsCSV_<string>(trading_history_ETF, "TradingHistoryETF.csv");
 
+            Console.ReadKey();
+        
         }
 
 
