@@ -62,8 +62,11 @@ namespace MLtrading
             double[][] trading_history_allocation = new double[Convert.ToInt64(Weeks)][];
             double[][] ADJtrading_history_allocation = new double[Convert.ToInt64(Weeks)][];
 
+            double DrawDown = 0;
+            double Position_ratio = 1;
+
+
             // init overall turnover
-            double TurnOver = 0;
 
             for (int i = 0; i < Convert.ToInt64(Weeks); i++)
             {   
@@ -273,48 +276,13 @@ namespace MLtrading
                     allocations[equ + 5] = AllocationEqu[equ] * 0.8;
                 }
 
-                double DrawDown;
-
-                if (i == 0)
-                {
-                    DrawDown = 0;     
-                }
-                else
-                {
-                    DrawDown = 1 - Hisc_netValue.Last() / Hisc_netValue.Max();
-                }
-
-
-                double Position_ratio;
-
-                if (DrawDown > 0.03)
-                {
-                     Position_ratio = 0.9; 
-                }
-                else if (DrawDown > 0.07)
-                {
-                     Position_ratio = 0.8;
-                }
-                else if (DrawDown > 0.1)
-                {
-                     Position_ratio = 0.6; 
-                }
-                else
-                {
-                     Position_ratio = 1;
-                }
-
-                Console.WriteLine("ADJ position is {0}", Position_ratio);
+            
                 double[] ALLOCATION = new double[10];
 
                 for (int allo = 0; allo < 10; allo++)
                 {
                     ALLOCATION[allo] = Position_ratio * allocations[allo];
                 }
-
-                //Console.WriteLine("Current Drawdown is {0}", DrawDown );
-                //Console.WriteLine("Position is {0}", ALLOCATION.Sum());
-
 
                 string[] ETFs = new string[10];
 
@@ -346,7 +314,37 @@ namespace MLtrading
 
 
                 Hisc_netValue.Add(Mybacktest.Rebalance(Today, ETFs, allocations)*(1- weighted_spread));
-                // Adj_netValue.Add(Mybacktest_adj.Rebalance(Today, ETFs, ALLOCATION));
+				Adj_netValue.Add(Mybacktest_adj.Rebalance(Today, ETFs, ALLOCATION)* (1 - weighted_spread));
+
+				if (i == 0)
+				{
+					DrawDown = 0;
+				}
+				else
+				{
+					DrawDown = 1 - Hisc_netValue.Last() / Hisc_netValue.Max();
+				}
+
+				if (DrawDown > 0.05)
+				{
+					Position_ratio = 0.8;
+				}
+				else if (DrawDown > 0.07)
+				{
+					Position_ratio = 0.6;
+				}
+				else if (DrawDown > 0.1)
+				{
+					Position_ratio = 0.5;
+				}
+				else
+				{
+					Position_ratio = 1;
+				}
+
+				Console.WriteLine("Current Drawdown is {0}", DrawDown);
+				Console.WriteLine("Change Fixed Income + Equity Position to {0}, the left will be Cash ETF", ALLOCATION.Sum());
+
             }
 
 
@@ -385,45 +383,47 @@ namespace MLtrading
 
             // Result analysis for AdjNetValue
 
-   //         var ADJStrategyNetValue = Adj_netValue.ToArray();
+            var ADJStrategyNetValue = Adj_netValue.ToArray();
 
-   //         double ADJMaxDD = 0;
+            double ADJMaxDD = 0;
 
-   //         for (int i = 1; i < ADJStrategyNetValue.Length; i++)
-			//{
-			//	var MaxNetValue = ADJStrategyNetValue.Take(i).Max();
-			//	double drawdown = 1 - ADJStrategyNetValue[i] / MaxNetValue;
+            for (int i = 1; i < ADJStrategyNetValue.Length; i++)
+			{
+				var MaxNetValue = ADJStrategyNetValue.Take(i).Max();
+				double drawdown = 1 - ADJStrategyNetValue[i] / MaxNetValue;
 
-   //             if (drawdown > ADJMaxDD)
-			//	{
-   //                 ADJMaxDD = drawdown;
-			//	}
-			//}
-   //         Console.WriteLine("Maximum drawdown of ADJ Strategy is: {0}", ADJMaxDD);
+                if (drawdown > ADJMaxDD)
+				{
+                    ADJMaxDD = drawdown;
+				}
+			}
 
-   //         var ADJAnnualReturn = Math.Log(ADJStrategyNetValue.Last()) /
-			//											(Convert.ToDouble(Weeks) / 50);
-   //         Console.WriteLine("Annual Return of ADJ Strategy is: {0}", ADJAnnualReturn);
+            Console.WriteLine("Maximum drawdown of ADJ Strategy is: {0}", ADJMaxDD);
 
-   //         var ADJStrategyReturn = NetValue2Return(ADJStrategyNetValue);
-   //         Console.WriteLine("Standard Deviation of This Strategy is: {0}",
-			//						  Statistics.StandardDeviation(ADJStrategyReturn));
+            var ADJAnnualReturn = Math.Log(ADJStrategyNetValue.Last()) /
+														(Convert.ToDouble(Weeks) / 50);
+            Console.WriteLine("Annual Return of ADJ Strategy is: {0}", ADJAnnualReturn);
 
-			//double[] ADJBTmetrics = new double[4];
-   //         ADJBTmetrics[0] = ADJAnnualReturn;
-			//ADJBTmetrics[1] = ADJMaxDD;
-   //         ADJBTmetrics[2] = Statistics.StandardDeviation(ADJStrategyReturn) * Math.Sqrt(50);
-			//ADJBTmetrics[3] = TurnOver;
+            var ADJStrategyReturn = NetValue2Return(ADJStrategyNetValue);
+            Console.WriteLine("Standard Deviation of This Strategy is: {0}",
+									  Statistics.StandardDeviation(ADJStrategyReturn));
 
-
+			double[] ADJBTmetrics = new double[3];
+            ADJBTmetrics[0] = ADJAnnualReturn;
+			ADJBTmetrics[1] = ADJMaxDD;
+            ADJBTmetrics[2] = Statistics.StandardDeviation(ADJStrategyReturn) * Math.Sqrt(50);
+			
             // Output all results to CSV
-            SaveArrayAsCSV_<string>(trading_history_ETF, "TradingHistoryETF.csv");
+            // Without position adjustment
             SaveArrayAsCSV_(trading_history_allocation, "TradingHistoryAllocation.csv");
-            // SaveArrayAsCSV_(ADJtrading_history_allocation,"ADJTradingHistoryAllocation.csv");
-			// SaveArrayAsCSV(ADJBTmetrics, "ADJBacktestMetrics.csv");
-            SaveArrayAsCSV(BTmetrics,"BacktestMetrics.csv");
-            SaveArrayAsCSV(StrategyNetValue, "Net_value.csv");
-            // SaveArrayAsCSV(ADJStrategyNetValue,"AdjNetValue.csv");
+			SaveArrayAsCSV(BTmetrics, "BacktestMetrics.csv");
+			SaveArrayAsCSV(StrategyNetValue, "Net_value.csv");
+            // With position adjustmnet
+            SaveArrayAsCSV_(ADJtrading_history_allocation,"ADJTradingHistoryAllocation.csv");
+			SaveArrayAsCSV(ADJBTmetrics, "ADJBacktestMetrics.csv");
+            SaveArrayAsCSV(ADJStrategyNetValue,"AdjNetValue.csv");
+
+            SaveArrayAsCSV_<string>(trading_history_ETF, "TradingHistoryETF.csv");
 
         }
 
