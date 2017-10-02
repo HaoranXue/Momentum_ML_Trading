@@ -343,7 +343,7 @@ namespace MLtrading
 				}
 				else
 				{
-					Position_ratio = 1;
+					Position_ratio = 0.2;
 				}
 
                 Console.WriteLine("Current drawdown is: {0}", DrawDown);
