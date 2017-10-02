@@ -1,7 +1,7 @@
 ﻿<Properties StartupConfiguration="{496C8CC4-DF3D-4DB6-ADB8-8ED44399B955}|Default" NuGet.AddPackagesDialog.IncludePrerelease="True">
   <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/Main.cs">
     <Files>
-      <File FileName="MachineLearningTrading/Main.cs" Line="180" Column="66" />
+      <File FileName="MachineLearningTrading/Main.cs" Line="346" Column="17" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

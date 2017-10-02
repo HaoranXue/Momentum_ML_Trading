@@ -63,7 +63,7 @@ namespace MLtrading
             double[][] ADJtrading_history_allocation = new double[Convert.ToInt64(Weeks)][];
 
             double DrawDown = 0;
-            double Position_ratio = 1;
+            double Position_ratio = 0.2;
 
 
             // init overall turnover
@@ -278,12 +278,17 @@ namespace MLtrading
             
                 double[] ALLOCATION = new double[10];
 
-                for (int allo = 0; allo < 10; allo++)
-                {
-                    ALLOCATION[allo] = Position_ratio * allocations[allo];
-                }
+				for (int fi = 0; fi < 5; fi++)
+				{
+                    ALLOCATION[fi] = AllocationFI[fi] * Position_ratio;
+				}
 
-                string[] ETFs = new string[10];
+				for (int equ = 0; equ < 5; equ++)
+				{
+                    ALLOCATION[equ + 5] = AllocationEqu[equ] * (1-Position_ratio);
+				}
+
+				string[] ETFs = new string[10];
 
                 for (int etf = 0; etf < 10; etf++)
                 {
@@ -324,25 +329,25 @@ namespace MLtrading
 					DrawDown = 1 - Hisc_netValue.Last() / Hisc_netValue.Max();
 				}
 
-				if (DrawDown > 0.05)
+				if (DrawDown > 0.1)
 				{
 					Position_ratio = 0.8;
 				}
-				else if (DrawDown > 0.07)
+				else if (DrawDown > 0.08)
 				{
 					Position_ratio = 0.6;
 				}
-				else if (DrawDown > 0.1)
+				else if (DrawDown > 0.05)
 				{
-					Position_ratio = 0.5;
+					Position_ratio = 0.4;
 				}
 				else
 				{
 					Position_ratio = 1;
 				}
 
-				Console.WriteLine("Current Drawdown is {0}", DrawDown);
-				Console.WriteLine("Change Fixed Income + Equity Position to {0}, the left will be Cash ETF", ALLOCATION.Sum());
+                Console.WriteLine("Current drawdown is: {0}", DrawDown);
+				Console.WriteLine("Fixed Income has been adjusted to: {0} %", Position_ratio * 100);
 
             }
 
