@@ -424,7 +424,7 @@ namespace MLtrading
 			SaveArrayAsCSV(StrategyNetValue, "StandardNet_value.csv");
             // With position adjustmnet
             SaveArrayAsCSV_(ADJtrading_history_allocation,"DynamicTradingHistoryAllocation.csv");
-			SaveArrayAsCSV(ADJBTmetrics, "DynamicBacktestMetrics.csv");
+			SaveArrayAsCSV(ADJBTmetrics, "DynamicBacktestMetrics.csv"); 
             SaveArrayAsCSV(ADJStrategyNetValue,"DynamicNetValue.csv");
 
             SaveArrayAsCSV_<string>(trading_history_ETF, "ETFTradingHistoryforALL.csv");
