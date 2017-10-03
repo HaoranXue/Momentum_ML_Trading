@@ -63,13 +63,14 @@ namespace portfolio_optimization
 			for (int i = 0; i < 1000; i++)
 			{
 				int index = MC.Next(0, 99);
+
 				for (int j = 0; j < 5; j++)
 				{
 					ETF_mc_array[j][i] = ETF_Hisc_arrary[j][index];
 				}
 			}
 
-			SaveArrayAsCSV(ETF_Hisc_arrary, "Hisc_array.csv");
+			SaveArrayAsCSV(ETF_mc_array, "Hisc_array.csv");
 
             // Optimization 
 
@@ -78,15 +79,18 @@ namespace portfolio_optimization
 
 			// Import library
 			engine.Evaluate(@"
+
 library(PortfolioAnalytics)
+library(DEoptim)
 data <- t(read.csv('Hisc_array.csv',header = FALSE))[-1001,]
 rownames(data) <- seq(1,1000,1)
 colnames(data) <- c('x1','x2','x3','x4','x5')
 portfolio <- portfolio.spec(colnames(data))
 portfolio <- add.constraint(portfolio,  type = 'weight_sum',min_sum=0.99, max_sum=1.01)
 portfolio <- add.constraint(portfolio, type = 'box', min = 0.1, max = 0.3)
-portfolio <- add.objective(portfolio=portfolio, type='risk', name='VaR',arguments = list(p = 0.97, method = 'historical', portfolio_method = 'component'), enabled = TRUE)
+portfolio <- add.objective(portfolio=portfolio, type='risk', name='VaR',arguments = list(p = 0.97, method = 'historical',portfolio_method='component'), enabled = TRUE)
 result<- optimize.portfolio(as.ts(data), portfolio = portfolio,traceDE=5,optimize_method='DEoptim',search_size=2000)
+
 ");
 			// Caculate the results 
 			double[] allocations = engine.Evaluate("result$weights").AsNumeric().ToArray();
