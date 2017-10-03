@@ -419,15 +419,15 @@ namespace MLtrading
 			
             // Output all results to CSV
             // Without position adjustment
-            SaveArrayAsCSV_(trading_history_allocation, "TradingHistoryAllocation.csv");
-			SaveArrayAsCSV(BTmetrics, "BacktestMetrics.csv");
-			SaveArrayAsCSV(StrategyNetValue, "Net_value.csv");
+            SaveArrayAsCSV_(trading_history_allocation, "StrandardTradingHistoryAllocation.csv");
+			SaveArrayAsCSV(BTmetrics, "StandardBacktestMetrics.csv");
+			SaveArrayAsCSV(StrategyNetValue, "StandardNet_value.csv");
             // With position adjustmnet
-            SaveArrayAsCSV_(ADJtrading_history_allocation,"ADJTradingHistoryAllocation.csv");
-			SaveArrayAsCSV(ADJBTmetrics, "ADJBacktestMetrics.csv");
-            SaveArrayAsCSV(ADJStrategyNetValue,"AdjNetValue.csv");
+            SaveArrayAsCSV_(ADJtrading_history_allocation,"DynamicTradingHistoryAllocation.csv");
+			SaveArrayAsCSV(ADJBTmetrics, "DynamicBacktestMetrics.csv");
+            SaveArrayAsCSV(ADJStrategyNetValue,"DynamicNetValue.csv");
 
-            SaveArrayAsCSV_<string>(trading_history_ETF, "TradingHistoryETF.csv");
+            SaveArrayAsCSV_<string>(trading_history_ETF, "ETFTradingHistoryforALL.csv");
 
             Console.ReadKey();
         
