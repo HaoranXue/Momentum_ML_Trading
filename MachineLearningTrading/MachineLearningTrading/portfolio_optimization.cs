@@ -100,7 +100,97 @@ result<- optimize.portfolio(as.ts(data), portfolio = portfolio,traceDE=5,optimiz
         }
 
 
-        public static void SaveArrayAsCSV<T>(T[][] jaggedArrayToSave, string fileName)
+		public static double[] ETF2AllocationD(List<string> ETFs, DataPreProcessing pro)
+		{
+			// Get the history data 
+
+			List<Series<DateTime, double>> ETF_Hisc = new List<Series<DateTime, double>>();
+
+			for (int i = 0; i < ETFs.Count; i++)
+			{
+				string ETFname = ETFs[i];
+
+				for (int j = 0; j < pro.Trade_ETF.Count; j++)
+				{
+					if (ETFname == pro.Trade_ETF[j])
+					{
+
+                        ETF_Hisc.Add(pro.Optimizing_data[j]);
+
+					}
+				}
+			}
+
+			// Transfer list<series> to array 
+
+			double[][] ETF_Hisc_arrary = new double[ETF_Hisc.Count][];
+
+			for (int i = 0; i < ETF_Hisc.Count; i++)
+			{
+
+				var len = ETF_Hisc[i].ValueCount;
+				ETF_Hisc_arrary[i] = new double[len];
+
+				for (int j = 0; j < len; j++)
+				{
+					ETF_Hisc_arrary[i][j] = Math.Exp(ETF_Hisc[i].GetAt(j)) - 1;
+
+				}
+
+			}
+
+
+			Random MC = new Random();
+
+			double[][] ETF_mc_array = new double[5][];
+
+			for (int i = 0; i < 5; i++)
+			{
+				ETF_mc_array[i] = new double[1000];
+			}
+
+			for (int i = 0; i < 1000; i++)
+			{
+				int index = MC.Next(0, 99);
+
+				for (int j = 0; j < 5; j++)
+				{
+					ETF_mc_array[j][i] = ETF_Hisc_arrary[j][index];
+				}
+			}
+
+			SaveArrayAsCSV(ETF_mc_array, "Hisc_array.csv");
+
+			// Optimization 
+
+			REngine.SetEnvironmentVariables(); // <-- May be omitted; the next line would call it.
+			REngine engine = REngine.GetInstance();
+
+			// Import library
+			engine.Evaluate(@"
+
+library(PortfolioAnalytics)
+library(DEoptim)
+data <- t(read.csv('Hisc_array.csv',header = FALSE))[-1001,]
+rownames(data) <- seq(1,1000,1)
+colnames(data) <- c('x1','x2','x3','x4','x5')
+portfolio <- portfolio.spec(colnames(data))
+portfolio <- add.constraint(portfolio,  type = 'weight_sum',min_sum=0.99, max_sum=1.01)
+portfolio <- add.constraint(portfolio, type = 'box', min = 0.1, max = 0.3)
+portfolio <- add.objective(portfolio=portfolio, type='risk', name='VaR',arguments = list(p = 0.97, method = 'historical',portfolio_method='component'), enabled = TRUE)
+result<- optimize.portfolio(as.ts(data), portfolio = portfolio,traceDE=5,optimize_method='DEoptim',search_size=2000)
+
+");
+			// Caculate the results 
+			double[] allocations = engine.Evaluate("result$weights").AsNumeric().ToArray();
+
+			return allocations;
+
+		}
+
+
+
+		public static void SaveArrayAsCSV<T>(T[][] jaggedArrayToSave, string fileName)
         {
             using (StreamWriter file = new StreamWriter(fileName))
             {
