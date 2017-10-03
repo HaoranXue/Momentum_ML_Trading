@@ -5,12 +5,13 @@ using SharpLearning.Metrics.Regression;
 using SharpLearning.InputOutput.Csv;
 using SharpLearning.CrossValidation.TrainingTestSplitters;
 using SharpLearning.Optimization;
+using RDotNet;
 
 namespace machinelearning
 {
     public static class Learning
-    {
-        public static double Fit(double[] pred_Features)
+    {   
+        public static double FitGBT(double[] pred_Features)
         {
    
             var parser = new CsvParser(() => new StreamReader("dataset.csv"),separator:',');
@@ -79,6 +80,29 @@ namespace machinelearning
             var prediction = model.Predict(pred_Features);
 
             return prediction;
+        }
+
+        public static double FitEN(double[] pred_Features)
+        {
+			/////////////////////////
+			/// UNDER CONSTRUCTION
+			/// UNDER CONSTRUCTION
+			/// UNDER CONSTRUCTION 
+			/// UNDER CONSTRUCTION 
+			/// ////////////////////
+            // 
+
+            REngine.SetEnvironmentVariables();
+            REngine engin = REngine.GetInstance();
+
+            engin.Evaluate(@"
+
+library(xgboost)
+dataset <- read.csv('dataset.csv', header = TRUE)
+");
+            
+            double a = 0;
+            return a;
         }
 
 

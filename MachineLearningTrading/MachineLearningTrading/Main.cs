@@ -104,7 +104,7 @@ namespace MLtrading
 
                     data.SaveCsv("dataset.csv");
 
-                    var prediction = Learning.Fit(pred_Features);
+                    var prediction = Learning.FitGBT(pred_Features);
 
                     predictions_FI[j] = prediction;
                 
@@ -192,7 +192,7 @@ namespace MLtrading
 
 					data.SaveCsv("dataset.csv");
 
-					var prediction = Learning.Fit(pred_Features);
+					var prediction = Learning.FitGBT(pred_Features);
 
                     predictions_Equ[j] = prediction;
 				}

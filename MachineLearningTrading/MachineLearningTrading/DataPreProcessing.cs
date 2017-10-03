@@ -386,11 +386,11 @@ namespace Preprocessing
             var dataMA5 = (data / MA5).Select(x => Math.Log(x.Value));
             var dataMA10 = (data / MA10).Select(x => Math.Log(x.Value));
 
-			var MA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0));
-			var MA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
-			var MA5MA10 = (MA5 - MA10).Select(x => x.Value.CompareTo(0));
+			var MA3MA5 = (MA3 / MA5).Select(x => Math.Log(x.Value));
+			var MA3MA10 = (MA3 / MA10).Select(x => Math.Log(x.Value));
+			var MA5MA10 = (MA5 / MA10).Select(x => Math.Log(x.Value));
 
-            var MMP3 = data.Window(3).Select(x => Math.Log( x.Value.Max() / x.Value.Min()));
+			var MMP3 = data.Window(3).Select(x => Math.Log( x.Value.Max() / x.Value.Min()));
             var MMP5 = data.Window(5).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
             var MMP10 = data.Window(10).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
 
@@ -436,9 +436,9 @@ namespace Preprocessing
 			var dataMA5 = (data / MA5).Select(x => Math.Log(x.Value));
 			var dataMA10 = (data / MA10).Select(x => Math.Log(x.Value));
 
-			var MA3MA5 = (MA3 - MA5).Select(x => x.Value.CompareTo(0));
-			var MA3MA10 = (MA3 - MA10).Select(x => x.Value.CompareTo(0));
-			var MA5MA10 = (MA5 - MA10).Select(x => x.Value.CompareTo(0));
+			var MA3MA5 = (MA3 / MA5).Select(x => Math.Log(x.Value));
+			var MA3MA10 = (MA3 / MA10).Select(x => Math.Log(x.Value));
+			var MA5MA10 = (MA5 / MA10).Select(x => Math.Log(x.Value));
 
 			var MMP3 = data.Window(3).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));
 			var MMP5 = data.Window(5).Select(x => Math.Log(x.Value.Max() / x.Value.Min()));

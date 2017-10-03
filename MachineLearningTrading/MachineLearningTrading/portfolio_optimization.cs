@@ -44,7 +44,7 @@ namespace portfolio_optimization
 
                 for (int j = 0; j < len; j++)
                 {
-                    ETF_Hisc_arrary[i][j] = Math.Exp(ETF_Hisc[i].GetAt(j)) -1;
+                    ETF_Hisc_arrary[i][j] = ETF_Hisc[i].GetAt(j);
                 
                 }
 
@@ -133,7 +133,7 @@ result<- optimize.portfolio(as.ts(data), portfolio = portfolio,traceDE=5,optimiz
 
 				for (int j = 0; j < len; j++)
 				{
-					ETF_Hisc_arrary[i][j] = Math.Exp(ETF_Hisc[i].GetAt(j)) - 1;
+					ETF_Hisc_arrary[i][j] = ETF_Hisc[i].GetAt(j);
 
 				}
 
