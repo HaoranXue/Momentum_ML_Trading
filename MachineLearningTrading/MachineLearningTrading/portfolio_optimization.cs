@@ -11,7 +11,7 @@ namespace portfolio_optimization
 {
     public static class PO
     {
-        public static double[] ETFs2Allocation(List<string> ETFs,  DataPreProcessing pro)
+        public static double[] ETF2Allocation(List<string> ETFs,  DataPreProcessing pro)
         {
             // Get the history data 
 

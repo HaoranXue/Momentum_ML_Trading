@@ -258,8 +258,8 @@ namespace MLtrading
 
                 //  Caculate optimized allocations
 
-                double[] AllocationFI = PO.ETFs2Allocation(ETFs_FI, pro_FI);
-                double[] AllocationEqu = PO.ETFs2Allocation(ETFs_Equ, pro_Equ);
+                double[] AllocationFI = PO.ETF2AllocationD(ETFs_FI, pro_FI);
+                double[] AllocationEqu = PO.ETF2AllocationD(ETFs_Equ, pro_Equ);
 
                 double[] allocations = new double[10];
 

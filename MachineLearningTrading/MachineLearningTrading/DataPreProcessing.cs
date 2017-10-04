@@ -12,10 +12,11 @@ namespace Preprocessing
 		public List<Frame<DateTime, string>> Feature_List = new List<Frame<DateTime, string>>();
 		public List<Series<DateTime, double>> Target_List = new List<Series<DateTime, double>>();
 		public List<Series<DateTime, double>> ETF_list = new List<Series<DateTime, double>>();
-        public List<Series<DateTime, double>> Optimizing_data = new List<Series<DateTime, double>>();
+        public List<Series<DateTime, double>> Optimizing_data = new List<Series<DateTime, double>>(); // Data for portfolio optimization
 		public List<string> Trade_Index = new List<string>();
 		public List<string> Trade_ETF = new List<string>();
         public List<double[]> pred_Feature_List = new List<double[]>();
+
 
 		public IEnumerable<DateTime> GetDaysBetween(DateTime start, DateTime end)
 		{
@@ -363,6 +364,7 @@ namespace Preprocessing
         {
             var FirstKey= data.FirstKey();
             var LastKey = data.LastKey();
+
             var BD = GetDaysBetween(FirstKey, LastKey).Where(d => d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday);
             var FilteredData = data.GetItems(BD);
 
