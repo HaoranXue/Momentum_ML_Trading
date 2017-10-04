@@ -109,14 +109,14 @@ regTask <- makeRegrTask(id= 'Reg.EN', data = dataset, target = 'Y')
 ENlearner <- makeLearner('regr.glmnet')
 
 PS <- makeParamSet(
-  makeNumericParam('alpha', lower =0, upper =10),
+  makeNumericParam('alpha', lower =0, upper =1),
   makeNumericParam('lambda', lower =0, upper =10)
 )
 
 rdesc = makeResampleDesc('Holdout')
 Tuning <- makeTuneControlIrace(maxExperiments = 200L)
 res <-tuneParams(ENlearner, task=regTask,par.set=PS,control=Tuning,resampling=rdesc,measures = list(mse),show.info = FALSE)
-classif_lrn <- setHyperPars(ENlearner,  par.vals = res$x)
+ENlearner <- setHyperPars(ENlearner,  par.vals = res$x)
 model <- train(learner = ENlearner, task = regTask)
 prediction <- predict(model, newdata = pred_features)
 
