@@ -501,13 +501,13 @@ namespace Preprocessing
             var MA5 = data.Window(5).Select(x => x.Value.Mean());
             var MA10 = data.Window(10).Select(x => x.Value.Mean());
 
-            var diffdataMA3 = (data / MA3).Select(x => x.Value - 1);
-            var diffdataMA5 = (data / MA5).Select(x => x.Value - 1);
-            var diffdataMA10 = (data / MA10).Select(x => x.Value - 1);
+            var diffdataMA3 = (data / MA3).Select(x => Math.Log(x.Value));
+            var diffdataMA5 = (data / MA5).Select(x => Math.Log(x.Value));
+            var diffdataMA10 = (data / MA10).Select(x => Math.Log(x.Value));
 
-            var diffMA3MA5 = (MA3 / MA5).Select(x => x.Value - 1);
-            var diffMA3MA10 = (MA3 / MA10).Select(x => x.Value - 1);
-            var diffMA5MA10 = (MA5 / MA10).Select(x => x.Value - 1);
+            var diffMA3MA5 = (MA3 / MA5).Select(x => Math.Log(x.Value));
+            var diffMA3MA10 = (MA3 / MA10).Select(x => Math.Log(x.Value));
+            var diffMA5MA10 = (MA5 / MA10).Select(x => Math.Log(x.Value));
 
             var SD3 = data.Window(3).Select(x => x.Value.StdDev());
             var SD5 = data.Window(5).Select(x => x.Value.StdDev());
@@ -592,13 +592,13 @@ namespace Preprocessing
 			var MA5 = data.Window(5).Select(x => x.Value.Mean());
 			var MA10 = data.Window(10).Select(x => x.Value.Mean());
 
-            var diffdataMA3 = (data / MA3).Select(x => x.Value -1 );
-			var diffdataMA5 = (data / MA5).Select(x => x.Value - 1);
-            var diffdataMA10 = (data / MA10).Select(x => x.Value - 1);
+			var diffdataMA3 = (data / MA3).Select(x => Math.Log(x.Value));
+			var diffdataMA5 = (data / MA5).Select(x => Math.Log(x.Value));
+			var diffdataMA10 = (data / MA10).Select(x => Math.Log(x.Value));
 
-            var diffMA3MA5 =  (MA3 / MA5).Select(x => x.Value - 1);
-            var diffMA3MA10 = (MA3 / MA10).Select(x => x.Value - 1);
-            var diffMA5MA10 = (MA5 / MA10).Select(x => x.Value - 1);
+			var diffMA3MA5 = (MA3 / MA5).Select(x => Math.Log(x.Value));
+			var diffMA3MA10 = (MA3 / MA10).Select(x => Math.Log(x.Value));
+			var diffMA5MA10 = (MA5 / MA10).Select(x => Math.Log(x.Value));
 
             var SD3 = data.Window(3).Select(x => x.Value.StdDev());
 			var SD5 = data.Window(5).Select(x => x.Value.StdDev());

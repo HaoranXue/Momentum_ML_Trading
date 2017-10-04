@@ -259,10 +259,10 @@ namespace MLtrading
 				///////////////////////////////////
 
 
-
 				for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
 				{
-				
+				    // Run machine learning and predict next week for all ETFss
+
                     var y = pro_Equ.Target_List[j];
 
 					var fy = new FrameBuilder.Columns<DateTime, string>{
@@ -281,6 +281,8 @@ namespace MLtrading
 
 				List<string> ETFs_Equ = new List<string>();
 
+                // Find the min score of top 5 best ETFs
+
                 var hold_Equ = PredRanking(predictions_Equ, 5);
 
                 for(int m = 0; m < pro_Equ.Trade_ETF.Count; m++)
@@ -290,6 +292,8 @@ namespace MLtrading
                         ETFs_Equ.Add(pro_Equ.Trade_ETF[m]);
 					}
 				}
+
+                // caculate the bidAsk Spread
 
                 double[] EquityBASpread = new double[5];
                 EquityBASpread = GetBidAskSpread(ETFs_Equ.ToArray());
@@ -304,7 +308,11 @@ namespace MLtrading
                     double[] holding_pred = ETFname2Prediction(ETFs_holding_Equ, predictions_Equ, pro_Equ);
                     double[] long_pred = ETFname2Prediction(ETFs_Equ, predictions_Equ, pro_Equ);
 
+                    // Caculate the Utility
+
 					double trade_diff = long_pred.Sum() - holding_pred.Sum();
+
+                    // check if it is worth of trading this week
 
 					if (trade_diff < 0.1)
 					{
@@ -312,7 +320,9 @@ namespace MLtrading
                         EquityBASpread = new double[] { 0, 0, 0, 0, 0 };
 					}
 					else
-					{
+					{   
+                        // Recacluate the spread costs
+
 						for (int m = 0; m < 5; m++)
 						{
 							for (int n = 0; n < 5; n++)
@@ -333,16 +343,20 @@ namespace MLtrading
 
 				}
 
+                // Store the Equity ETFs we are going to long in Blend ETFs list
+
 				for (int n = 0; n < ETFs_Equ.Count; n++)
 				{
 					Console.WriteLine(ETFs_Equ[n]);
                     Blend_ETFs.Add(ETFs_Equ[n]);
 				}
 
-                //  Caculate optimized allocations
+                //  Caculate optimized allocations for both Fixed income and Equity ETFs
 
                 double[] AllocationFI = PO.ETF2AllocationD(ETFs_FI, pro_FI);
                 double[] AllocationEqu = PO.ETF2AllocationD(ETFs_Equ, pro_Equ);
+
+                // Setting allocations which is an array to store allocations for strandard strategy
 
                 double[] allocations = new double[10];
 
@@ -356,8 +370,10 @@ namespace MLtrading
                     allocations[equ + 5] = AllocationEqu[equ] * 0.8;
                 }
 
-            
-                double[] ALLOCATION = new double[10];
+
+				// Setting ALLOCATION which is an array to store allocations for strandard strategy
+
+				double[] ALLOCATION = new double[10];
 
 				for (int fi = 0; fi < 5; fi++)
 				{
@@ -369,12 +385,16 @@ namespace MLtrading
                     ALLOCATION[equ + 5] = AllocationEqu[equ] * (1-Position_ratio);
 				}
 
+                //  Transform ETFs list to an array 
+
 				string[] ETFs = new string[10];
 
                 for (int etf = 0; etf < 10; etf++)
                 {
                     ETFs[etf] = Blend_ETFs[etf];
                 }
+
+                // Storing the ETFs trading history and allocations
 
                 trading_history_ETF[i] = new string[10];
                 trading_history_ETF[i] = ETFs;
@@ -385,10 +405,14 @@ namespace MLtrading
                 ADJtrading_history_allocation[i] = new double[10];
                 ADJtrading_history_allocation[i] = ALLOCATION;
 
+                // Get the spread array for all ETFs
+
                 double[] spread = new double[10];
 
                 Array.Copy(FixedIncomeSpread, spread, FixedIncomeSpread.Length);
                 Array.Copy(EquityBASpread, 0, spread, FixedIncomeSpread.Length, EquityBASpread.Length);
+
+                // Caculate the weighted spread for the adjustment in netvalue
 
                 double weighted_spread = 0;
 
@@ -397,9 +421,13 @@ namespace MLtrading
                     weighted_spread += allocations[spreadItem] * spread[spreadItem];
                 }
 
+                // clearing the NetValue
 
                 Hisc_netValue.Add(Mybacktest.Rebalance(Today, ETFs, allocations)*(1- weighted_spread));
 				Adj_netValue.Add(Mybacktest_adj.Rebalance(Today, ETFs, ALLOCATION)* (1 - weighted_spread));
+
+                // Caculate the current drawdown and adjust the position ratio which is 
+                //  the percentage for the fixed income ETFs
 
 				if (i == 0)
 				{
@@ -409,6 +437,8 @@ namespace MLtrading
 				{
 					DrawDown = 1 - Hisc_netValue.Last() / Hisc_netValue.Max();
 				}
+
+                // Adjust the position ratio
 
 				if (DrawDown > 0.1)
 				{
@@ -427,6 +457,8 @@ namespace MLtrading
 					Position_ratio = 0.2;
 				}
 
+                // Print out the current drawdown and position ratio.
+
                 Console.WriteLine("Current drawdown is: {0}", DrawDown);
 				Console.WriteLine("Fixed Income has been adjusted to: {0} %", Position_ratio * 100);
 
@@ -435,13 +467,11 @@ namespace MLtrading
 
 			// Result analysis for NetValue
 
-
 			/////////////////////
 			/// 
 			/// Backtest Metrics of Strandard Strategy
 			/// 
 			////////////////////
-
 
 
 			var StrategyNetValue = Hisc_netValue.ToArray();
@@ -476,7 +506,6 @@ namespace MLtrading
             BTmetrics[2] = Statistics.StandardDeviation(StrategyReturn)*Math.Sqrt(50);
 
 			// Result analysis for AdjNetValue
-
 
 			/////////////////////
 			/// 
