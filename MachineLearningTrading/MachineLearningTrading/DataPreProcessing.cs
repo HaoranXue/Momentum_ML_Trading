@@ -360,11 +360,11 @@ namespace Preprocessing
             return keys;
         }
 
+
         public Series<DateTime,double> FilterWeekend(Series<DateTime, double> data)
         {
             var FirstKey= data.FirstKey();
             var LastKey = data.LastKey();
-
             var BD = GetDaysBetween(FirstKey, LastKey).Where(d => d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday);
             var FilteredData = data.GetItems(BD);
 
