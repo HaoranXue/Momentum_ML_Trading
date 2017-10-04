@@ -58,15 +58,13 @@ namespace MLtrading
             List<double> Adj_netValue = new List<double>();
             List<string> ETFs_holding_FI = new List<string>();
             List<string> ETFs_holding_Equ = new List<string>();
+
             string[][] trading_history_ETF = new string[Convert.ToInt64(Weeks)][];
             double[][] trading_history_allocation = new double[Convert.ToInt64(Weeks)][];
             double[][] ADJtrading_history_allocation = new double[Convert.ToInt64(Weeks)][];
 
             double DrawDown = 0;
             double Position_ratio = 0.2;
-
-
-            // init overall turnover
 
             for (int i = 0; i < Convert.ToInt64(Weeks); i++)
             {   
@@ -90,7 +88,7 @@ namespace MLtrading
                 // Set blend ETFs list
                 List<string> Blend_ETFs = new List<string>();
 
-                // FI prediction and long //
+                // FI prediction //
 
                 for (int j = 0; j < pro_FI.Trade_ETF.Count; j++)
                 {
@@ -165,7 +163,7 @@ namespace MLtrading
 
                         ETFs_holding_FI = ETFs_FI;
                     }
-                    // Caculate Bid Ask Spread 
+
                 }
 
                 Console.WriteLine("Long the following ETFs: ");
@@ -176,7 +174,7 @@ namespace MLtrading
                     Blend_ETFs.Add(ETFs_FI[n]);
                 }
 
-				// Equity ETF predict and long 
+				// Equity ETF prediction //
 
 
                 for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
@@ -352,9 +350,18 @@ namespace MLtrading
             }
 
 
-            // Result analysis for NetValue
+			// Result analysis for NetValue
 
-            var StrategyNetValue = Hisc_netValue.ToArray();
+
+			/////////////////////
+			/// 
+			/// Backtest Metrics of Strandard Strategy
+			/// 
+			////////////////////
+
+
+
+			var StrategyNetValue = Hisc_netValue.ToArray();
 
 			double MaxDD = 0;
 
@@ -385,9 +392,16 @@ namespace MLtrading
             BTmetrics[1] = MaxDD;
             BTmetrics[2] = Statistics.StandardDeviation(StrategyReturn)*Math.Sqrt(50);
 
-            // Result analysis for AdjNetValue
+			// Result analysis for AdjNetValue
 
-            var ADJStrategyNetValue = Adj_netValue.ToArray();
+
+			/////////////////////
+			/// 
+			/// Backtest Metrics of Dynamic Strategy
+			/// 
+			/////////////////////
+
+			var ADJStrategyNetValue = Adj_netValue.ToArray();
 
             double ADJMaxDD = 0;
 
@@ -401,6 +415,7 @@ namespace MLtrading
                     ADJMaxDD = drawdown;
 				}
 			}
+
 
             Console.WriteLine("Maximum drawdown of ADJ Strategy is: {0}", ADJMaxDD);
 

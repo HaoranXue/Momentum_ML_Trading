@@ -80,46 +80,12 @@
       <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net45\Microsoft.Scripting.Metadata.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SharpLearning.CrossValidation, Version=0.25.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpLearning.CrossValidation.0.25.0.4\lib\net45\SharpLearning.CrossValidation.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SharpLearning.GradientBoost, Version=0.25.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpLearning.GradientBoost.0.25.0.4\lib\net45\SharpLearning.GradientBoost.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SharpLearning.Optimization, Version=0.25.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpLearning.Optimization.0.25.0.4\lib\net45\SharpLearning.Optimization.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SharpLearning.RandomForest, Version=0.25.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpLearning.RandomForest.0.25.0.4\lib\net45\SharpLearning.RandomForest.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="MathNet.Numerics">
       <HintPath>..\packages\MathNet.Numerics.3.20.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Solver.Foundation">
       <HintPath>..\packages\Microsoft.Solver.Foundation.3.1.0\lib\Microsoft.Solver.Foundation.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLearning.Containers">
-      <HintPath>..\packages\SharpLearning.Containers.0.25.0.4\lib\net45\SharpLearning.Containers.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLearning.Common.Interfaces">
-      <HintPath>..\packages\SharpLearning.Common.Interfaces.0.25.0.4\lib\net45\SharpLearning.Common.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLearning.InputOutput">
-      <HintPath>..\packages\SharpLearning.InputOutput.0.25.0.4\lib\net45\SharpLearning.InputOutput.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLearning.DecisionTrees">
-      <HintPath>..\packages\SharpLearning.DecisionTrees.0.25.0.4\lib\net45\SharpLearning.DecisionTrees.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLearning.Metrics">
-      <HintPath>..\packages\SharpLearning.Metrics.0.25.0.4\lib\net45\SharpLearning.Metrics.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLearning.AdaBoost">
-      <HintPath>..\packages\SharpLearning.AdaBoost.0.25.0.4\lib\net45\SharpLearning.AdaBoost.dll</HintPath>
     </Reference>
     <Reference Include="DynamicInterop">
       <HintPath>..\packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.dll</HintPath>
@@ -150,6 +116,36 @@
     </Reference>
     <Reference Include="Sharpkit.Learn">
       <HintPath>..\packages\Sharpkit.Learn.0.2.0\lib\net40\Sharpkit.Learn.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.Containers">
+      <HintPath>..\packages\SharpLearning.Containers.0.26.0\lib\netstandard2.0\SharpLearning.Containers.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.Common.Interfaces">
+      <HintPath>..\packages\SharpLearning.Common.Interfaces.0.26.0\lib\netstandard2.0\SharpLearning.Common.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.InputOutput">
+      <HintPath>..\packages\SharpLearning.InputOutput.0.26.0\lib\netstandard2.0\SharpLearning.InputOutput.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.CrossValidation">
+      <HintPath>..\packages\SharpLearning.CrossValidation.0.26.0\lib\netstandard2.0\SharpLearning.CrossValidation.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.DecisionTrees">
+      <HintPath>..\packages\SharpLearning.DecisionTrees.0.26.0\lib\netstandard2.0\SharpLearning.DecisionTrees.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.GradientBoost">
+      <HintPath>..\packages\SharpLearning.GradientBoost.0.26.0\lib\netstandard2.0\SharpLearning.GradientBoost.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.Metrics">
+      <HintPath>..\packages\SharpLearning.Metrics.0.26.0\lib\netstandard2.0\SharpLearning.Metrics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.AdaBoost">
+      <HintPath>..\packages\SharpLearning.AdaBoost.0.26.0\lib\netstandard2.0\SharpLearning.AdaBoost.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.RandomForest">
+      <HintPath>..\packages\SharpLearning.RandomForest.0.26.0\lib\netstandard2.0\SharpLearning.RandomForest.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLearning.Optimization">
+      <HintPath>..\packages\SharpLearning.Optimization.0.26.0\lib\netstandard2.0\SharpLearning.Optimization.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -90,19 +90,37 @@ namespace machinelearning
 			/// UNDER CONSTRUCTION 
 			/// UNDER CONSTRUCTION 
 			/// ////////////////////
-            // 
 
             REngine.SetEnvironmentVariables();
             REngine engin = REngine.GetInstance();
 
+            NumericVector vector = engin.CreateNumericVector(pred_Features);
+
+            engin.SetSymbol("pred_features", vector);
+
             engin.Evaluate(@"
 
-library(xgboost)
-dataset <- read.csv('dataset.csv', header = TRUE)
+library(mlr)
+library(glmnet)
+
+dataset <- read.csv('dataset.csv',header =  TRUE)
+regTask <- makeRegrTask(id= 'Reg.EN', data = dataset, target = 'Y')
+ENlearner <- makeLearner('regr.glmnet')
+PS <- makeParamSet(
+  makeDiscreteParam('alpha', values = c(0,0.1,0.2,1)),
+  makeNumericParam('lambda', lower =0, upper =0.05)
+)
+rdesc = makeResampleDesc('CV')
+Tuning <- makeTuneControlRandom(maxit = 30L)
+res <-tuneParams(ENlearner, task=regTask,par.set=PS,control=Tuning,resampling=rdesc,measures = list(mse), show.info = FALSE)
+classif_lrn <- setHyperPars(ENlearner,  par.vals = res$x)
+model <- train(learner = ENlearner, task = regTask)
+prediction <- predict(model, newdata = pred_features)
+
 ");
             
-            double a = 0;
-            return a;
+            var prediction = engin.Evaluate("prediction").AsNumeric().ToArray()[0];
+            return prediction;
         }
 
 

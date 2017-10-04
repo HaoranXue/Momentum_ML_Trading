@@ -17,6 +17,14 @@ namespace Preprocessing
 		public List<string> Trade_ETF = new List<string>();
         public List<double[]> pred_Feature_List = new List<double[]>();
 
+		public IEnumerable<DateTime> GetDaysBetween(DateTime start, DateTime end)
+		{
+			for (DateTime i = start; i < end; i = i.AddDays(1))
+			{
+				yield return i;
+			}
+		}
+
         // Main function for DataPreProcessing Class to run pre processing
         public void Run(string date, int weeks,string catagory)
         {
@@ -351,21 +359,11 @@ namespace Preprocessing
             return keys;
         }
 
-        public static Series<DateTime,double> FilterWeekend(Series<DateTime, double> data)
+        public Series<DateTime,double> FilterWeekend(Series<DateTime, double> data)
         {
             var FirstKey= data.FirstKey();
             var LastKey = data.LastKey();
-
-			IEnumerable<DateTime> GetDaysBetween(DateTime start, DateTime end)
-			{
-				for (DateTime i = start; i < end; i = i.AddDays(1))
-				{
-					yield return i;
-				}
-			}
-
-            var BD = GetDaysBetween(FirstKey, LastKey).Where(d => d.DayOfWeek != DayOfWeek.Saturday || d.DayOfWeek != DayOfWeek.Sunday);
-
+            var BD = GetDaysBetween(FirstKey, LastKey).Where(d => d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday);
             var FilteredData = data.GetItems(BD);
 
             return FilteredData;
