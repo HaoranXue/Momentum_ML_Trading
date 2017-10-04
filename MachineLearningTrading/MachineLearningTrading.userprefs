@@ -1,11 +1,11 @@
 ﻿<Properties StartupConfiguration="{496C8CC4-DF3D-4DB6-ADB8-8ED44399B955}|Default" NuGet.AddPackagesDialog.IncludePrerelease="True">
-  <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/DataPreProcessing.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MachineLearningTrading/machinelearning.cs">
     <Files>
       <File FileName="MachineLearningTrading/Main.cs" Line="105" Column="50" />
       <File FileName="MachineLearningTrading/portfolio_optimization.cs" Line="1" Column="1" />
       <File FileName="MachineLearningTrading/machinelearning.cs" Line="16" Column="4" />
       <File FileName="MachineLearningTrading/packages.config" Line="1" Column="1" />
-      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="369" Column="14" />
+      <File FileName="MachineLearningTrading/DataPreProcessing.cs" Line="373" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

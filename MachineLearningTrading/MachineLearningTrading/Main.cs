@@ -46,54 +46,105 @@ namespace MLtrading
         public static void BackTest(string Date, string Weeks)
         {
 
-			// Data Preprocessing
+			
+            ///////////////////////////
+            /// 
+            /// Setting backtest object
+            /// 
+            //////////////////////////
 
-            var Mybacktest = new Backtest();
-            var Mybacktest_adj = new Backtest();
+            Backtest Mybacktest = new Backtest();
+            Backtest Mybacktest_adj = new Backtest();
+
+            // Initial the two backtest 
+
             Mybacktest.Init();
             Mybacktest_adj.Init();
 
-            // Set list to store data
+            ///////////////////////////
+            /// 
+            /// Setting data container to store the information
+            /// outside the for loop 
+            /// 
+            ///////////////////////////
+
+            // setting netvalue lists for both standard strategy and dynamic strategy
+
             List<double> Hisc_netValue = new List<double>();
             List<double> Adj_netValue = new List<double>();
+
+            // setting lists to store Fixed Income ETFs and Equity ETFs
+            // we are holding during this trading week for the caculation of 
+            // Turnover Utility function
+
             List<string> ETFs_holding_FI = new List<string>();
             List<string> ETFs_holding_Equ = new List<string>();
+
+            // setting matrix to store the trading history during this backtest
 
             string[][] trading_history_ETF = new string[Convert.ToInt64(Weeks)][];
             double[][] trading_history_allocation = new double[Convert.ToInt64(Weeks)][];
             double[][] ADJtrading_history_allocation = new double[Convert.ToInt64(Weeks)][];
 
+            // setting two variable drawdown and position ratio for the caculation
+            // in Dynamic strategy, position ratio means the percentage of Fixed Income 
+            // ETFs we are currently holding
+
             double DrawDown = 0;
             double Position_ratio = 0.2;
 
+
+            //////////////////////////////////
+            /// 
+            /// For loop backtest 
+            /// 
+            /// /////////////////////////////
+
+
             for (int i = 0; i < Convert.ToInt64(Weeks); i++)
             {   
+                
+                // seting Datapreprocessing class for both Fixed Income ETFs and Equity ETFs
 
-                // seting Datapreprocessing class 
-                var pro_FI = new DataPreProcessing();
-                var pro_Equ = new DataPreProcessing();
+                DataPreProcessing pro_FI = new DataPreProcessing();
+                DataPreProcessing pro_Equ = new DataPreProcessing();
+
+                // caculate the date of today start from the 'Date'
+                // which is given by backtest function
 
                 var Today = DateTime.Parse(Date).AddDays(i*7);
+
+                // print the date we trained the model and trade 
 
                 Console.WriteLine("Date: {0}", Today.ToString());
 
                 // cleaning data use data preprocessing class 
+
                 pro_FI.Run(Today.ToString(), 112, "Fixed Income");
                 pro_Equ.Run(Today.ToString(), 112, "Equity");
 
                 // Set prediction vector
+
                 double[] predictions_FI = new double[pro_FI.Trade_ETF.Count];
                 double[] predictions_Equ = new double[pro_Equ.Trade_ETF.Count];
 
-                // Set blend ETFs list
+                // Set blend ETFs list to store the Top 10 etfs which is going to be
+                // longed by the algorithm
+
                 List<string> Blend_ETFs = new List<string>();
 
-                // FI prediction //
+				/////////////////////////////
+				///                   ///////
+				/// FI ETF prediction ///////
+				///                   ///////
+				/////////////////////////////
 
-                for (int j = 0; j < pro_FI.Trade_ETF.Count; j++)
-                {
+				for (int j = 0; j < pro_FI.Trade_ETF.Count; j++)
+                {   
+
+                    // Grab the data from the datapreprocessing object class
+
                     var y = pro_FI.Target_List[j];
-
                     var fy = new FrameBuilder.Columns<DateTime, string>{
                      { "Y"  , y  }
                     }.Frame;
@@ -102,6 +153,8 @@ namespace MLtrading
 
                     data.SaveCsv("dataset.csv");
 
+                    // Training machine learning and predict
+
                     var prediction = Learning.FitGBT(pred_Features);
 
                     predictions_FI[j] = prediction;
@@ -109,9 +162,11 @@ namespace MLtrading
                 }
 
                 // Get the minimum scores of top 5 ETF 
+
                 var hold_FI = PredRanking(predictions_FI,5);
 
                 // Get the namelist of top 5 ETF
+
                 List<string> ETFs_FI = new List<string>();
 
                 for (int m = 0; m < pro_FI.Trade_ETF.Count; m++)
@@ -122,30 +177,49 @@ namespace MLtrading
                     }
                 }
 
-                // Cacualte the Unitility and decide if we should trade this week
+
+                // Caculate the bid-ask spread cost if trade all 5 ETFs given by algorithm
 
                 double[] FixedIncomeSpread = new double[5];
                 FixedIncomeSpread = GetBidAskSpread(ETFs_FI.ToArray());
 
-                if (i ==0)
+				// Cacualte the Unitility and decide if we should trade this week
+
+				if (i ==0)
                 {
                     ETFs_holding_FI = ETFs_FI;
                 }
                 else
                 {
-                    
+                    // get all prediction results of both holding etf and etfs which we may be going to trade
+
                     double[] holding_pred = ETFname2Prediction(ETFs_holding_FI, predictions_FI, pro_FI);
                     double[] long_pred = ETFname2Prediction(ETFs_FI, predictions_FI, pro_FI);
 
+                    // caculate the trade diff which is the utility of trading this week
+
                     double trade_diff= long_pred.Sum() - holding_pred.Sum();
 
+                    // check if it is worth of trading
+
                     if (trade_diff < 0.03)
-                    {
+                    {   
+                        // It is not worth of trading and ETFs portfolio will be same
+                        
                         ETFs_FI = ETFs_holding_FI;
+
+                        // setting spread equals to 0 because we are not going to trade this week
+
                         FixedIncomeSpread = new double[] { 0, 0, 0, 0, 0 };
                     }
                     else
-                    {
+                    {   
+
+                        // It is worth of changing positions and trading this week ! 
+
+                        // recaculate the spread costs because we may not going to trade all 
+                        // ETFs which we are holding right now. 
+
 						for (int m = 0; m < 5; m++)
 						{
 							for (int n = 0; n < 5; n++)
@@ -161,6 +235,8 @@ namespace MLtrading
 							}
 						}
 
+                        // resetting the fixed income ETFs  we are holding 
+
                         ETFs_holding_FI = ETFs_FI;
                     }
 
@@ -168,16 +244,23 @@ namespace MLtrading
 
                 Console.WriteLine("Long the following ETFs: ");
 
+                // Store the Fixed Income ETFs namelist to blend ETFs list
+
                 for (int n = 0; n < ETFs_FI.Count; n++)
                 {
                     Console.WriteLine(ETFs_FI[n]);
                     Blend_ETFs.Add(ETFs_FI[n]);
                 }
 
-				// Equity ETF prediction //
+				///////////////////////////////////
+				///                         ///////
+				/// Equity ETF prediction   ///////
+				///                         ///////
+				///////////////////////////////////
 
 
-                for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
+
+				for (int j = 0; j < pro_Equ.Trade_ETF.Count; j++)
 				{
 				
                     var y = pro_Equ.Target_List[j];
@@ -452,10 +535,14 @@ namespace MLtrading
 
         public static void Trade()
         {
-            // Under Construction // 
-
+            //////////////////////////
+            /// 
+            /// Under Construction
+            /// 
+            /// /////////////////////
 
         }
+
 
         public static double[] NetValue2Return(double[] netvalue)
         {
@@ -476,6 +563,7 @@ namespace MLtrading
 
             return Return;
         }
+
 
         public static double[] ETFname2Prediction(  List<string> ETF, 
                                                     double[] prediction,
@@ -510,17 +598,6 @@ namespace MLtrading
         }
 
 
-        public static void SaveArrayAsCSV<T>(T[] arrayToSave, string fileName)
-        {
-            using (StreamWriter file = new StreamWriter(fileName))
-            {
-                foreach (T item in arrayToSave)
-                {
-                    file.Write(item + ",");
-                }
-            }
-        }
-
         public static double PredRanking(double[] predictions, int place)
         {
             ArrayList prediction_sort = new ArrayList(predictions);
@@ -529,6 +606,19 @@ namespace MLtrading
 
             return hold;
 		}
+
+
+		public static void SaveArrayAsCSV<T>(T[] arrayToSave, string fileName)
+		{
+			using (StreamWriter file = new StreamWriter(fileName))
+			{
+				foreach (T item in arrayToSave)
+				{
+					file.Write(item + ",");
+				}
+			}
+		}
+
 
         public static void SaveArrayAsCSV_<T>(T[][] jaggedArrayToSave, string fileName)
         {
@@ -544,6 +634,7 @@ namespace MLtrading
                 }
             }
         }
+
 
 		public static double[] GetBidAskSpread(string[] ETFs)
 		{
