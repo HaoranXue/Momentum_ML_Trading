@@ -110,7 +110,7 @@ ENlearner <- makeLearner('regr.glmnet')
 
 PS <- makeParamSet(
   makeNumericParam('alpha', lower =0, upper =1),
-  makeNumericParam('lambda', lower =0, upper =10)
+  makeNumericParam('lambda', lower =0, upper =0.25)
 )
 
 rdesc = makeResampleDesc('Holdout')
@@ -119,6 +119,7 @@ res <-tuneParams(ENlearner, task=regTask,par.set=PS,control=Tuning,resampling=rd
 ENlearner <- setHyperPars(ENlearner,  par.vals = res$x)
 model <- train(learner = ENlearner, task = regTask)
 prediction <- predict(model, newdata = pred_features)
+
 
 ");
             
