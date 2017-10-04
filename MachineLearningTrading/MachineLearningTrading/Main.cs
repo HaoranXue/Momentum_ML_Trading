@@ -93,12 +93,17 @@ namespace MLtrading
             double DrawDown = 0;
             double Position_ratio = 0.2;
 
+            int FI_holding_weeks = 0;
+            int Equ_holding_weeks = 0;
 
+            double[] FI_holding_allocation = new double[5];
+            double[] Equ_holding_allocation = new double[5];
+            
             //////////////////////////////////
             /// 
             /// For loop backtest 
             /// 
-            /// /////////////////////////////
+            /////////////////////////////////
 
 
             for (int i = 0; i < Convert.ToInt64(Weeks); i++)
@@ -190,7 +195,7 @@ namespace MLtrading
                     ETFs_holding_FI = ETFs_FI;
                 }
                 else
-                {
+                {   
                     // get all prediction results of both holding etf and etfs which we may be going to trade
 
                     double[] holding_pred = ETFname2Prediction(ETFs_holding_FI, predictions_FI, pro_FI);
@@ -203,9 +208,11 @@ namespace MLtrading
                     // check if it is worth of trading
 
                     if (trade_diff < 0.03)
-                    {   
+                    {
                         // It is not worth of trading and ETFs portfolio will be same
-                        
+
+                        FI_holding_weeks += 1;
+
                         ETFs_FI = ETFs_holding_FI;
 
                         // setting spread equals to 0 because we are not going to trade this week
@@ -213,7 +220,8 @@ namespace MLtrading
                         FixedIncomeSpread = new double[] { 0, 0, 0, 0, 0 };
                     }
                     else
-                    {   
+                    {
+                        FI_holding_weeks = 0;
 
                         // It is worth of changing positions and trading this week ! 
 
@@ -316,12 +324,15 @@ namespace MLtrading
 
 					if (trade_diff < 0.1)
 					{
+                        Equ_holding_weeks += 1;
 						ETFs_Equ = ETFs_holding_Equ;
                         EquityBASpread = new double[] { 0, 0, 0, 0, 0 };
 					}
 					else
-					{   
+					{
                         // Recacluate the spread costs
+
+                        Equ_holding_weeks = 0;
 
 						for (int m = 0; m < 5; m++)
 						{
@@ -351,14 +362,53 @@ namespace MLtrading
                     Blend_ETFs.Add(ETFs_Equ[n]);
 				}
 
-                //  Caculate optimized allocations for both Fixed income and Equity ETFs
+				//  Caculate optimized allocations for both Fixed income and Equity ETFs
 
-                double[] AllocationFI = PO.ETF2AllocationD(ETFs_FI, pro_FI);
-                double[] AllocationEqu = PO.ETF2AllocationD(ETFs_Equ, pro_Equ);
+				//////////////////////////////
 
-                // Setting allocations which is an array to store allocations for strandard strategy
+				double[] AllocationFI = new double[5];
 
-                double[] allocations = new double[10];
+                if (i == 0)
+                {
+                    AllocationFI = PO.ETF2AllocationD(ETFs_FI, pro_FI);
+                    FI_holding_allocation = AllocationFI;
+                }
+                else if (FI_holding_weeks < 6)
+                {
+                    AllocationFI = FI_holding_allocation;
+                }
+                else
+                {
+                    AllocationFI = PO.ETF2AllocationD(ETFs_FI, pro_FI);
+                    FI_holding_weeks = 0;
+                    FI_holding_allocation = AllocationFI;
+                }
+
+                //////////////////////////////
+                 
+                double[] AllocationEqu = new double[5];
+
+				if (i == 0)
+				{
+                    AllocationEqu = PO.ETF2AllocationD(ETFs_Equ, pro_Equ);
+                    Equ_holding_allocation = AllocationEqu;
+				}
+				else if (FI_holding_weeks < 6)
+				{
+                    AllocationEqu = Equ_holding_allocation;
+				}
+				else
+				{
+					AllocationEqu = PO.ETF2AllocationD(ETFs_Equ, pro_Equ);
+                    Equ_holding_weeks = 0;
+                    Equ_holding_allocation = AllocationEqu;
+				}
+
+				//////////////////////////////
+
+				// Setting allocations which is an array to store allocations for strandard strategy
+
+				double[] allocations = new double[10];
 
                 for (int fi = 0; fi < 5; fi++)
                 {
