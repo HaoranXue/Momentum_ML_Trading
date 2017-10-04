@@ -110,7 +110,7 @@ ENlearner <- makeLearner('regr.glmnet')
 
 PS <- makeParamSet(
   makeNumericParam('alpha', lower =0, upper =1),
-  makeNumericParam('lambda', lower =0, upper =10)
+  makeNumericParam('lambda', lower =0, upper =0.25)
 )
 
 rdesc = makeResampleDesc('Holdout')
